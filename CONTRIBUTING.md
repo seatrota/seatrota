@@ -1,3 +1,21 @@
+# Contributing to SeatRota
+
+SeatRota adds Teams packages on top of a MIT Cal.diy snapshot. Read this section before the upstream contribution notes below.
+
+## Clean-room rules
+
+Do not open, copy, port, or paraphrase commercially licensed Cal.com code. That includes enterprise-only trees, non-MIT paths, the calcom/cal.com history, enterprise directories in any fork, flexcal history from before pull request 94, and non-MIT `@calcom` npm packages.
+
+Work only from public documentation, observed product behaviour, and the SeatRota specification. MIT Cal.diy code is allowed. Keep its license notices intact. Do not add SPDX headers to snapshot files.
+
+New TypeScript and JavaScript under `packages/teams-*` uses the header in `.github/spdx-header-agpl.txt` and is covered by `LICENSE-AGPL` (AGPL-3.0-only).
+
+`scripts/cleanroom-check.sh` must pass. It scans changes since the snapshot commit for enterprise imports and markers, rejects new files that carry a Cal.com copyright line, requires the AGPL SPDX header on new teams sources, runs jscpd (minimum 40 tokens) of `packages/teams-*` against the MIT tree, and runs `license-checker --onlyAllow` on dependencies this repository adds.
+
+## Provenance
+
+Every pull request must list the sources it used. Name public documentation, the product behaviour that was observed, and any SeatRota specification sections. Do not cite commercial source trees. If a change touches an upstream file, say so and point at the patch note in `patches/` when there is one.
+
 # Contributing to Cal.diy
 
 > **Important:** Cal.diy is a community-driven, open-source fork of Cal.com. Contributions made here **do not** get merged into Cal.com's production service — Cal.com is now closed-source. This repo is maintained independently by the community under the MIT license.

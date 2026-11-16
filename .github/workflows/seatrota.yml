@@ -1,0 +1,42 @@
+name: SeatRota
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+env:
+  HUSKY: "0"
+
+jobs:
+  teams:
+    name: Lint, type-check, unit, clean-room
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Enable the repository package manager
+        run: corepack enable
+
+      - name: Install
+        run: yarn install --immutable
+
+      - name: Lint teams packages
+        run: yarn biome lint packages/teams-core packages/teams-scheduling packages/teams-booking packages/teams-workflows packages/teams-insights packages/teams-sso packages/teams-billing
+
+      - name: Type-check teams packages
+        run: yarn type-check --filter=@seatrota/*
+
+      - name: Unit tests
+        run: yarn workspace @seatrota/teams-core test
+
+      - name: Clean-room check
+        run: bash scripts/cleanroom-check.sh
+
+      - name: Clean-room self-test
+        run: bash scripts/cleanroom-selftest.sh

@@ -1,3 +1,27 @@
+# SeatRota
+
+SeatRota is a clean-room Teams add-on on the MIT Cal.diy snapshot recorded in [UPSTREAM.md](./UPSTREAM.md). Packages under `packages/teams-*` are AGPL-3.0-only ([LICENSE-AGPL](./LICENSE-AGPL)). The snapshot files keep the MIT license and their original notices.
+
+## Boot
+
+Postgres for local `yarn dev` is the upstream database in `packages/prisma/docker-compose.yml` (host port 5450, matching `.env.example`). The root `docker-compose.yml` also includes Postgres.
+
+```sh
+cp .env.example .env
+cp .env.appStore.example .env.appStore
+docker compose -f packages/prisma/docker-compose.yml up -d
+yarn
+yarn dev
+```
+
+The web app listens on http://localhost:3000.
+
+To start the root compose stack, including its Postgres service:
+
+```sh
+docker compose up -d
+```
+
 > [!WARNING]  
 > Use at your own risk. Cal.diy is the open source community edition of Cal.com and it is intended for users who want to self-host their own Cal.diy instance. It is strictly recommended for personal, non-production use. Please review all installation and configuration steps carefully. Self-hosting requires advanced knowledge of server administration, database management, and securing sensitive data. Proceed only if you are comfortable with these responsibilities.
 
