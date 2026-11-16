@@ -1,5 +1,3 @@
-import { CalendarsService } from "@/ee/calendars/services/calendars.service";
-
 import { ICS_CALENDAR_ID, ICS_CALENDAR_TYPE } from "@calcom/platform-constants";
 
 export class CalendarsServiceMock {
@@ -78,6 +76,6 @@ export class CalendarsServiceMock {
         updatedAt: new Date(),
         customCalendarReminder: 10,
       },
-    } satisfies Awaited<ReturnType<typeof CalendarsService.prototype.getCalendars>>;
+    };
   }
 }

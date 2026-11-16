@@ -88,7 +88,6 @@ To make persistent changes to API documentation, use NestJS decorators (`@ApiQue
 ### Workflows vs Webhooks
 
 Workflows and webhooks are two completely separate features in Cal.diy with different implementations and file structures:
-- Workflow constants: `packages/features/ee/workflows/lib/constants.ts`
 - NOT in the webhooks directory
 
 When working on workflow triggers, do not reference or use webhook trigger implementations - they are distinct systems.

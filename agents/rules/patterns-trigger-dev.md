@@ -237,4 +237,3 @@ export const myTask = schemaTask({
 - Example taskers in the codebase:
   - `packages/features/calendars/lib/tasker/` (standard pattern)
   - `packages/features/webhooks/lib/tasker/` (webhook delivery)
-  - `packages/features/ee/billing/service/proration/tasker/` (scheduled cron task)

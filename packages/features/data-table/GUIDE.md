@@ -1153,7 +1153,7 @@ From `apps/web/modules/bookings/components/BookingsList.tsx` (hooks/providers im
 
 ### Example 3: Team Member List with Infinite Scroll
 
-From `apps/web/modules/ee/teams/components/MemberList.tsx`:
+A member list with infinite scroll:
 
 ```tsx
 <DataTableWrapper
