@@ -597,6 +597,55 @@
     },
     "//#test": {
       "cache": false
+    },
+    "@seatrota/teams-core#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-core#type-check": {
+      "dependsOn": []
+    },
+    "@seatrota/teams-scheduling#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-scheduling#type-check": {
+      "dependsOn": []
+    },
+    "@seatrota/teams-booking#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-booking#type-check": {
+      "dependsOn": []
+    },
+    "@seatrota/teams-workflows#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-workflows#type-check": {
+      "dependsOn": []
+    },
+    "@seatrota/teams-insights#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-insights#type-check": {
+      "dependsOn": []
+    },
+    "@seatrota/teams-sso#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-sso#type-check": {
+      "dependsOn": []
+    },
+    "@seatrota/teams-billing#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "@seatrota/teams-billing#type-check": {
+      "dependsOn": []
     }
   }
 }
