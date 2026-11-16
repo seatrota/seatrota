@@ -13246,6 +13246,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@seatrota/teams-billing@workspace:packages/teams-billing":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-billing@workspace:packages/teams-billing"
+  languageName: unknown
+  linkType: soft
+
+"@seatrota/teams-booking@workspace:packages/teams-booking":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-booking@workspace:packages/teams-booking"
+  languageName: unknown
+  linkType: soft
+
+"@seatrota/teams-core@workspace:packages/teams-core":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-core@workspace:packages/teams-core"
+  languageName: unknown
+  linkType: soft
+
+"@seatrota/teams-insights@workspace:packages/teams-insights":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-insights@workspace:packages/teams-insights"
+  languageName: unknown
+  linkType: soft
+
+"@seatrota/teams-scheduling@workspace:packages/teams-scheduling":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-scheduling@workspace:packages/teams-scheduling"
+  languageName: unknown
+  linkType: soft
+
+"@seatrota/teams-sso@workspace:packages/teams-sso":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-sso@workspace:packages/teams-sso"
+  languageName: unknown
+  linkType: soft
+
+"@seatrota/teams-workflows@workspace:packages/teams-workflows":
+  version: 0.0.0-use.local
+  resolution: "@seatrota/teams-workflows@workspace:packages/teams-workflows"
+  languageName: unknown
+  linkType: soft
+
 "@sec-ant/readable-stream@npm:^0.4.1":
   version: 0.4.1
   resolution: "@sec-ant/readable-stream@npm:0.4.1"

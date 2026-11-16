@@ -9,6 +9,6 @@
     "build": "tsc -p tsconfig.json",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "biome lint .",
-    "test": "vitest run --config vitest.config.ts"
+    "test": "node ../../node_modules/vitest/vitest.mjs run --config vitest.config.ts"
   }
 }

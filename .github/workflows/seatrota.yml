@@ -30,7 +30,7 @@ jobs:
         run: yarn biome lint packages/teams-core packages/teams-scheduling packages/teams-booking packages/teams-workflows packages/teams-insights packages/teams-sso packages/teams-billing
 
       - name: Type-check teams packages
-        run: yarn type-check --filter=@seatrota/*
+        run: yarn type-check --filter='@seatrota/*'
 
       - name: Unit tests
         run: yarn workspace @seatrota/teams-core test
