@@ -256,6 +256,47 @@ jobs:
         if: always()
         run: docker logs seatrota 2>&1 | tail -200 || true
 
+  upstream-sync-dry-run:
+    name: Upstream sync dry run
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone calcom/cal.diy (shallow, public)
+        run: git clone -q --shallow-since=2026-04-16 --no-tags https://github.com/calcom/cal.diy.git "$RUNNER_TEMP/cal.diy"
+
+      - name: Replay the patch queue on the recorded snapshot (must be clean)
+        env:
+          UPSTREAM_MIRROR: ${{ runner.temp }}/cal.diy
+        run: |
+          current="$(sed -n 's/^- SHA: //p' UPSTREAM.md | head -n 1)"
+          bash scripts/upstream-sync.sh --dry-run --report "$RUNNER_TEMP/sync-current.md" "$current"
+          cat "$RUNNER_TEMP/sync-current.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Replay the patch queue on upstream main (report only)
+        continue-on-error: true
+        env:
+          UPSTREAM_MIRROR: ${{ runner.temp }}/cal.diy
+        run: |
+          set +e
+          bash scripts/upstream-sync.sh --dry-run --report "$RUNNER_TEMP/sync-latest.md" main
+          status=$?
+          cat "$RUNNER_TEMP/sync-latest.md" >> "$GITHUB_STEP_SUMMARY" || true
+          echo "dry run against upstream main exited $status (3 means a patch needs a manual rebase)"
+          exit "$status"
+
+      - name: Upstream sync script rejects bad input
+        env:
+          UPSTREAM_MIRROR: ${{ runner.temp }}/cal.diy
+        run: |
+          set +e
+          bash scripts/upstream-sync.sh >/dev/null 2>&1; test $? -eq 1 || exit 1
+          bash scripts/upstream-sync.sh --dry-run not-a-real-ref-0000 >/dev/null 2>&1; test $? -eq 1 || exit 1
+          echo "usage and unknown-ref errors exit 1"
+
   sso-keycloak:
     name: OIDC e2e (Keycloak)
     runs-on: ubuntu-24.04

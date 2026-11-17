@@ -1,0 +1,133 @@
+diff --git a/.github/CODEOWNERS b/.github/CODEOWNERS
+index 8b13789..8a0fd98 100644
+--- a/.github/CODEOWNERS
++++ b/.github/CODEOWNERS
+@@ -1 +1 @@
+-
++* @seatrota-admin
+diff --git a/package.json b/package.json
+index 35f32dd..8ae6aa4 100644
+--- a/package.json
++++ b/package.json
+@@ -27,7 +27,7 @@
+     "create-app-template": "yarn app-store create-template",
+     "edit-app-template": "yarn app-store edit-template",
+     "delete-app-template": "yarn app-store delete-template",
+-    "build": "turbo run build --filter=@calcom/web...",
++    "build": "turbo run build --filter=@calcom/web... --filter='@seatrota/*'",
+     "build:ai": "turbo run build --filter=\"@calcom/ai\"",
+     "clean": "find . -name node_modules -o -name .next -o -name .turbo -o -name dist -type d -prune | xargs rm -rf",
+     "db-deploy": "turbo run db-deploy",
+diff --git a/turbo.json b/turbo.json
+index 8b40d67..e0b4cf2 100644
+--- a/turbo.json
++++ b/turbo.json
+@@ -597,6 +597,55 @@
+     },
+     "//#test": {
+       "cache": false
++    },
++    "@seatrota/teams-core#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-core#type-check": {
++      "dependsOn": []
++    },
++    "@seatrota/teams-scheduling#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-scheduling#type-check": {
++      "dependsOn": []
++    },
++    "@seatrota/teams-booking#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-booking#type-check": {
++      "dependsOn": []
++    },
++    "@seatrota/teams-workflows#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-workflows#type-check": {
++      "dependsOn": []
++    },
++    "@seatrota/teams-insights#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-insights#type-check": {
++      "dependsOn": []
++    },
++    "@seatrota/teams-sso#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-sso#type-check": {
++      "dependsOn": []
++    },
++    "@seatrota/teams-billing#build": {
++      "dependsOn": [],
++      "outputs": ["dist/**"]
++    },
++    "@seatrota/teams-billing#type-check": {
++      "dependsOn": []
+     }
+   }
+ }
+diff --git a/yarn.lock b/yarn.lock
+index 094fec4..8d16643 100644
+--- a/yarn.lock
++++ b/yarn.lock
+@@ -13246,6 +13246,48 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"@seatrota/teams-billing@workspace:packages/teams-billing":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-billing@workspace:packages/teams-billing"
++  languageName: unknown
++  linkType: soft
++
++"@seatrota/teams-booking@workspace:packages/teams-booking":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-booking@workspace:packages/teams-booking"
++  languageName: unknown
++  linkType: soft
++
++"@seatrota/teams-core@workspace:packages/teams-core":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-core@workspace:packages/teams-core"
++  languageName: unknown
++  linkType: soft
++
++"@seatrota/teams-insights@workspace:packages/teams-insights":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-insights@workspace:packages/teams-insights"
++  languageName: unknown
++  linkType: soft
++
++"@seatrota/teams-scheduling@workspace:packages/teams-scheduling":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-scheduling@workspace:packages/teams-scheduling"
++  languageName: unknown
++  linkType: soft
++
++"@seatrota/teams-sso@workspace:packages/teams-sso":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-sso@workspace:packages/teams-sso"
++  languageName: unknown
++  linkType: soft
++
++"@seatrota/teams-workflows@workspace:packages/teams-workflows":
++  version: 0.0.0-use.local
++  resolution: "@seatrota/teams-workflows@workspace:packages/teams-workflows"
++  languageName: unknown
++  linkType: soft
++
+ "@sec-ant/readable-stream@npm:^0.4.1":
+   version: 0.4.1
+   resolution: "@sec-ant/readable-stream@npm:0.4.1"

@@ -1,6 +1,6 @@
 # Patch queue
 
-`patches/NNN-*.md` documents each seam patched in upstream core files. Teams core seams start at `010`. Scheduling seams start at `020`. Reminder workflow seams start at `030`. Insights seams start at `040`. SSO seams start at `050`. Hosted-readiness seams start at `060`.
+`patches/NNN-*.md` documents each seam patched in upstream core files. Teams core seams start at `010`. Scheduling seams start at `020`. Reminder workflow seams start at `030`. Insights seams start at `040`. SSO seams start at `050`. Hosted-readiness seams start at `060`. Upstream-sync seams start at `070`.
 
 - `000-drop-dangling-enterprise-refs` records commit `e9c8925`. The cleanup stays on `main`; the `.patch` is what sync replays.
 - `001-drop-commercial-license-upsell` deletes unreferenced upsell strings from `packages/i18n/locales/*/common.json`.
@@ -12,6 +12,7 @@
 - `040`-`041` are the M4 insights seams: the seeded-data insights e2e and the Next.js transpile entry. The dashboard reads existing tables, so there is no schema change.
 - `050`-`054` are the M5 SSO seams: additive Prisma SSO tables, the next-auth provider registry, OIDC provider refresh, the Next.js transpile entry and the Keycloak browser e2e. Workflow changes in `.github/workflows/seatrota.yml` are SeatRota's own file, not an upstream seam, so they have no patch.
 - `060`-`063` are the M6 hosted-readiness seams: the additive Prisma subscription table, the Stripe webhook route, the Next.js transpile entry and the billing e2e. The container image lives in `docker/`, which is SeatRota's own directory.
+- `070-workspace-baseline` records the workspace edits from before M1: the `@seatrota/*` build filter in `package.json`, the teams tasks in `turbo.json`, the teams workspaces in `yarn.lock` and `.github/CODEOWNERS`. Paths SeatRota owns outright, and the two upstream build artifacts it deletes, are listed in `scripts/seatrota-owned.txt` instead.
 
 When a seam exists:
 
