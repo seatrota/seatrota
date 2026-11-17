@@ -418,6 +418,8 @@ export async function provisionOidcUser(input: {
     await prisma.teamsMembership.create({
       data: { teamId: domainRow.teamId, userId: user.id, role },
     });
+    const { syncTeamSeatsQuietly } = await import("@seatrota/teams-billing/service");
+    await syncTeamSeatsQuietly(domainRow.teamId);
   } else if (matched && existing.role !== role) {
     await prisma.teamsMembership.update({
       where: { id: existing.id },

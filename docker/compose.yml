@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 SeatRota contributors
+#
+# Local stack: Postgres plus the SeatRota image.
+#   cp docker/seatrota.env.example docker/seatrota.env
+#   docker compose -f docker/compose.yml up --build
+name: seatrota
+
+services:
+  database:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: seatrota
+      POSTGRES_PASSWORD: seatrota
+      POSTGRES_DB: seatrota
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seatrota"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  seatrota:
+    image: seatrota:local
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        NEXT_PUBLIC_WEBAPP_URL: ${NEXT_PUBLIC_WEBAPP_URL:-http://localhost:3000}
+    env_file: seatrota.env
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  database:

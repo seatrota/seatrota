@@ -62,6 +62,7 @@ jobs:
           yarn workspace @seatrota/teams-scheduling test
           yarn workspace @seatrota/teams-workflows test
           yarn workspace @seatrota/teams-insights test
+          yarn workspace @seatrota/teams-billing test
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
@@ -127,6 +128,10 @@ jobs:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       CRON_API_KEY: seatrota-ci-cron-key
+      SEATROTA_BILLING_ENABLED: "1"
+      STRIPE_SECRET_KEY: sk_test_seatrotaci
+      SEATROTA_STRIPE_WEBHOOK_SECRET: whsec_seatrota_ci
+      SEATROTA_STRIPE_SEAT_PRICE_ID: price_seatrota_ci
       NEXT_PUBLIC_IS_E2E: "1"
       PLAYWRIGHT_HEADLESS: "1"
     steps:
@@ -174,12 +179,82 @@ jobs:
       - name: Playwright insights e2e
         run: yarn playwright test apps/web/playwright/teams-insights.e2e.ts --project=@calcom/web --workers=1
 
+      - name: Playwright billing e2e (Stripe test-mode webhooks)
+        run: yarn playwright test apps/web/playwright/teams-billing.e2e.ts --project=@calcom/web --workers=1
+
       - name: Playwright SSO e2e (Keycloak browser login)
         run: yarn playwright test apps/web/playwright/teams-sso.e2e.ts --project=@calcom/web --workers=1
 
       - name: Keycloak log on failure
         if: failure()
         run: docker logs keycloak | tail -200
+
+  docker-image:
+    name: Docker image
+    # Pinned: ubuntu-latest is 26.04; keep every SeatRota job on 24.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free runner disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      - name: Build the SeatRota image
+        run: docker build -f docker/Dockerfile -t seatrota:ci .
+
+      - name: Refuse a live Stripe key at startup
+        run: |
+          set +e
+          out=$(docker run --rm --entrypoint node \
+            -e DATABASE_URL=postgresql://x@localhost/x -e NEXTAUTH_SECRET=x \
+            -e CALENDSO_ENCRYPTION_KEY=abcdefghijklmnopqrstuvwxyz123456 \
+            -e NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000 \
+            -e SEATROTA_BILLING_ENABLED=1 -e STRIPE_SECRET_KEY=sk_live_notreal \
+            -e SEATROTA_STRIPE_WEBHOOK_SECRET=whsec_x -e SEATROTA_STRIPE_SEAT_PRICE_ID=price_x \
+            seatrota:ci /app/.seatrota/check-env.js 2>&1)
+          code=$?
+          set -e
+          echo "$out"
+          test "$code" -ne 0
+          echo "$out" | grep -q "live key"
+
+      - name: Start Postgres and the image
+        run: |
+          docker network create seatrota
+          docker run -d --name database --network seatrota \
+            -e POSTGRES_USER=seatrota -e POSTGRES_PASSWORD=seatrota -e POSTGRES_DB=seatrota postgres:16
+          for i in $(seq 1 30); do docker exec database pg_isready -U seatrota && break; sleep 2; done
+          docker run -d --name seatrota --network seatrota -p 3000:3000 \
+            -e DATABASE_URL=postgresql://seatrota:seatrota@database:5432/seatrota \
+            -e DATABASE_DIRECT_URL=postgresql://seatrota:seatrota@database:5432/seatrota \
+            -e NEXTAUTH_SECRET=seatrota-ci-nextauth-secret \
+            -e CALENDSO_ENCRYPTION_KEY=abcdefghijklmnopqrstuvwxyz123456 \
+            -e NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000 -e NEXTAUTH_URL=http://localhost:3000 \
+            -e CRON_API_KEY=seatrota-ci-cron-key \
+            seatrota:ci
+
+      - name: Smoke-test the running container
+        run: |
+          for i in $(seq 1 90); do
+            # An empty database redirects to first-run setup, so follow redirects.
+            code=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:3000/auth/login || true)
+            [ "$code" = "200" ] && break
+            sleep 5
+          done
+          echo "login page (after redirects): $code, landed on $(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:3000/auth/login)"
+          test "$code" = "200"
+          cron=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/cron/teams-reminders)
+          echo "cron without key: $cron"
+          test "$cron" = "401"
+          keyed=$(curl -s -X POST -H "authorization: seatrota-ci-cron-key" http://localhost:3000/api/cron/teams-reminders)
+          echo "cron with key: $keyed"
+          echo "$keyed" | grep -q '"sent":0'
+          docker exec database psql -U seatrota -d seatrota -tAc             "select count(*) from information_schema.tables where table_name like 'teams_%'"
+
+      - name: Container logs
+        if: always()
+        run: docker logs seatrota 2>&1 | tail -200 || true
 
   sso-keycloak:
     name: OIDC e2e (Keycloak)

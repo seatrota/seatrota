@@ -2886,6 +2886,7 @@ model TeamsTeam {
   eventTypes     TeamsEventType[]
   ssoConnections TeamsSsoConnection[]
   ssoDomains     TeamsSsoDomain[]
+  subscription   TeamsSubscription?
 
   @@map("teams_team")
 }
@@ -3090,4 +3091,22 @@ model TeamsReminder {
   @@index([status, sendAt])
   @@index([bookingId])
   @@map("teams_reminder")
+}
+
+/// Per-seat Stripe subscription for one team (hosted instances only, Stripe test mode).
+model TeamsSubscription {
+  id                   Int       @id @default(autoincrement())
+  teamId               Int       @unique
+  stripeCustomerId     String?
+  stripeSubscriptionId String?   @unique
+  status               String    @default("incomplete")
+  seats                Int       @default(0)
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  lastEventId          String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  team                 TeamsTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("teams_subscription")
 }

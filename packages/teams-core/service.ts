@@ -69,6 +69,12 @@ async function guard(procedure: TeamsProcedure, userId: number, slug: string): P
   return role;
 }
 
+/** Keeps a hosted team's Stripe seat count in step with its members. Never throws. */
+async function syncSeats(teamId: number): Promise<void> {
+  const { syncTeamSeatsQuietly } = await import("@seatrota/teams-billing/service");
+  await syncTeamSeatsQuietly(teamId);
+}
+
 export async function createTeam(input: { userId: number; name: string; slug: string }) {
   assertTeamsAccess({ procedure: "create", isAuthenticated: true, role: null });
   const name = input.name.trim();
@@ -259,6 +265,7 @@ export async function acceptInvite(input: { userId: number; email: string; token
     data: { acceptedAt: new Date() },
   });
   const team = await prisma.teamsTeam.findUniqueOrThrow({ where: { id: invite.teamId } });
+  await syncSeats(team.id);
   return { slug: team.slug, name: team.name, role: asRole(invite.role) };
 }
 
@@ -312,6 +319,7 @@ export async function removeMember(input: { actorId: number; slug: string; userI
     ownerCount,
   });
   await prisma.teamsMembership.delete({ where: { id: target.id } });
+  await syncSeats(team.id);
   return { userId: input.userId };
 }
 

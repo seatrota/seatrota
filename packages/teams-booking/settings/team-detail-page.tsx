@@ -3,6 +3,7 @@
 // Copyright (c) 2026 SeatRota contributors
 
 import { trpc } from "@calcom/trpc/react";
+import TeamBillingPanel from "@seatrota/teams-billing/settings/billing-panel";
 import TeamInsightsPanel from "@seatrota/teams-insights/settings/insights-panel";
 import TeamSsoPanel from "@seatrota/teams-sso/settings/sso-panel";
 import TeamRemindersPanel from "@seatrota/teams-workflows/settings/reminders-panel";
@@ -424,6 +425,8 @@ export default function TeamDetailPage() {
       </section>
 
       <TeamInsightsPanel slug={slug} />
+
+      <TeamBillingPanel slug={slug} canManage={canManage} />
 
       <TeamSsoPanel slug={slug} canManage={canManage} />
     </div>

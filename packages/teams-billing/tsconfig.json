@@ -11,6 +11,6 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["index.ts"],
-  "exclude": ["dist", "index.test.ts", "vitest.config.ts"]
+  "include": ["index.ts", "config.ts", "seats.ts", "stripe-gateway.ts", "webhook-signature.ts", "check-env.ts"],
+  "exclude": ["dist", "**/*.test.ts", "vitest.config.ts"]
 }

@@ -1,0 +1,66 @@
+diff --git a/packages/prisma/migrations/20261117150000_teams_billing/migration.sql b/packages/prisma/migrations/20261117150000_teams_billing/migration.sql
+new file mode 100644
+index 0000000..58e4976
+--- /dev/null
++++ b/packages/prisma/migrations/20261117150000_teams_billing/migration.sql
+@@ -0,0 +1,26 @@
++-- CreateTable
++CREATE TABLE "public"."teams_subscription" (
++    "id" SERIAL NOT NULL,
++    "teamId" INTEGER NOT NULL,
++    "stripeCustomerId" TEXT,
++    "stripeSubscriptionId" TEXT,
++    "status" TEXT NOT NULL DEFAULT 'incomplete',
++    "seats" INTEGER NOT NULL DEFAULT 0,
++    "currentPeriodEnd" TIMESTAMP(3),
++    "cancelAtPeriodEnd" BOOLEAN NOT NULL DEFAULT false,
++    "lastEventId" TEXT,
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    "updatedAt" TIMESTAMP(3) NOT NULL,
++
++    CONSTRAINT "teams_subscription_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_subscription_teamId_key" ON "public"."teams_subscription"("teamId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_subscription_stripeSubscriptionId_key" ON "public"."teams_subscription"("stripeSubscriptionId");
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_subscription" ADD CONSTRAINT "teams_subscription_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams_team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
+diff --git a/packages/prisma/schema.prisma b/packages/prisma/schema.prisma
+index 6d759b8..dcc861c 100644
+--- a/packages/prisma/schema.prisma
++++ b/packages/prisma/schema.prisma
+@@ -2886,6 +2886,7 @@ model TeamsTeam {
+   eventTypes     TeamsEventType[]
+   ssoConnections TeamsSsoConnection[]
+   ssoDomains     TeamsSsoDomain[]
++  subscription   TeamsSubscription?
+ 
+   @@map("teams_team")
+ }
+@@ -3091,3 +3092,21 @@ model TeamsReminder {
+   @@index([bookingId])
+   @@map("teams_reminder")
+ }
++
++/// Per-seat Stripe subscription for one team (hosted instances only, Stripe test mode).
++model TeamsSubscription {
++  id                   Int       @id @default(autoincrement())
++  teamId               Int       @unique
++  stripeCustomerId     String?
++  stripeSubscriptionId String?   @unique
++  status               String    @default("incomplete")
++  seats                Int       @default(0)
++  currentPeriodEnd     DateTime?
++  cancelAtPeriodEnd    Boolean   @default(false)
++  lastEventId          String?
++  createdAt            DateTime  @default(now())
++  updatedAt            DateTime  @updatedAt
++  team                 TeamsTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
++
++  @@map("teams_subscription")
++}
