@@ -1,0 +1,173 @@
+diff --git a/packages/prisma/migrations/20261117120000_teams_scheduling/migration.sql b/packages/prisma/migrations/20261117120000_teams_scheduling/migration.sql
+new file mode 100644
+index 0000000..1c6a646
+--- /dev/null
++++ b/packages/prisma/migrations/20261117120000_teams_scheduling/migration.sql
+@@ -0,0 +1,49 @@
++-- CreateEnum
++CREATE TYPE "public"."TeamsSchedulingType" AS ENUM ('ROUND_ROBIN', 'COLLECTIVE');
++
++-- CreateEnum
++CREATE TYPE "public"."TeamsHostPriority" AS ENUM ('HIGH', 'MEDIUM', 'LOW');
++
++-- AlterTable
++ALTER TABLE "public"."teams_event_type" ADD COLUMN     "schedulingType" "public"."TeamsSchedulingType" NOT NULL DEFAULT 'ROUND_ROBIN';
++
++-- AlterTable
++ALTER TABLE "public"."teams_host" ADD COLUMN     "isFixed" BOOLEAN NOT NULL DEFAULT false,
++ADD COLUMN     "priority" "public"."TeamsHostPriority" NOT NULL DEFAULT 'MEDIUM',
++ADD COLUMN     "weight" INTEGER NOT NULL DEFAULT 100;
++
++-- CreateTable
++CREATE TABLE "public"."teams_assignment" (
++    "id" SERIAL NOT NULL,
++    "teamsEventTypeId" INTEGER NOT NULL,
++    "bookingId" INTEGER NOT NULL,
++    "bookingUid" TEXT NOT NULL,
++    "assignedUserId" INTEGER NOT NULL,
++    "hostUserIds" INTEGER[],
++    "assignmentReason" TEXT NOT NULL,
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    "supersededAt" TIMESTAMP(3),
++
++    CONSTRAINT "teams_assignment_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateIndex
++CREATE INDEX "teams_assignment_teamsEventTypeId_idx" ON "public"."teams_assignment"("teamsEventTypeId");
++
++-- CreateIndex
++CREATE INDEX "teams_assignment_bookingId_idx" ON "public"."teams_assignment"("bookingId");
++
++-- CreateIndex
++CREATE INDEX "teams_assignment_bookingUid_idx" ON "public"."teams_assignment"("bookingUid");
++
++-- CreateIndex
++CREATE INDEX "teams_assignment_assignedUserId_idx" ON "public"."teams_assignment"("assignedUserId");
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_assignment" ADD CONSTRAINT "teams_assignment_teamsEventTypeId_fkey" FOREIGN KEY ("teamsEventTypeId") REFERENCES "public"."teams_event_type"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_assignment" ADD CONSTRAINT "teams_assignment_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "public"."Booking"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_assignment" ADD CONSTRAINT "teams_assignment_assignedUserId_fkey" FOREIGN KEY ("assignedUserId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+diff --git a/packages/prisma/schema.prisma b/packages/prisma/schema.prisma
+index 316b721..fec97e0 100644
+--- a/packages/prisma/schema.prisma
++++ b/packages/prisma/schema.prisma
+@@ -515,6 +515,7 @@ model User {
+ 
+   teamsMemberships TeamsMembership[]
+   teamsHosts       TeamsHost[]
++  teamsAssignments TeamsAssignment[] @relation("TeamsAssignmentUser")
+ 
+   @@unique([email])
+   @@unique([email, username])
+@@ -912,6 +913,7 @@ model Booking {
+   /// @zod.import(["import { emailSchema } from '../../zod-utils'"]).custom.use(emailSchema)
+   rescheduledBy          String?
+   assignmentReason       AssignmentReason[]
++  teamsAssignments       TeamsAssignment[]
+   internalNote           BookingInternalNote[]
+   creationSource         CreationSource?
+   tracking               Tracking?
+@@ -2862,6 +2864,17 @@ enum TeamsMembershipRole {
+   MEMBER
+ }
+ 
++enum TeamsSchedulingType {
++  ROUND_ROBIN
++  COLLECTIVE
++}
++
++enum TeamsHostPriority {
++  HIGH
++  MEDIUM
++  LOW
++}
++
+ model TeamsTeam {
+   id          Int               @id @default(autoincrement())
+   name        String
+@@ -2906,18 +2919,20 @@ model TeamsInvite {
+ }
+ 
+ model TeamsEventType {
+-  id          Int         @id @default(autoincrement())
+-  teamId      Int
+-  slug        String
+-  title       String
+-  description String?
+-  length      Int
+-  eventTypeId Int?        @unique
+-  createdAt   DateTime    @default(now())
+-  updatedAt   DateTime    @updatedAt
+-  team        TeamsTeam   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+-  eventType   EventType?  @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
+-  hosts       TeamsHost[]
++  id             Int                 @id @default(autoincrement())
++  teamId         Int
++  slug           String
++  title          String
++  description    String?
++  length         Int
++  schedulingType TeamsSchedulingType @default(ROUND_ROBIN)
++  eventTypeId    Int?                @unique
++  createdAt      DateTime            @default(now())
++  updatedAt      DateTime            @updatedAt
++  team           TeamsTeam           @relation(fields: [teamId], references: [id], onDelete: Cascade)
++  eventType      EventType?          @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
++  hosts          TeamsHost[]
++  assignments    TeamsAssignment[]
+ 
+   @@unique([teamId, slug])
+   @@index([teamId])
+@@ -2925,16 +2940,40 @@ model TeamsEventType {
+ }
+ 
+ model TeamsHost {
+-  id                  Int            @id @default(autoincrement())
++  id                  Int               @id @default(autoincrement())
+   teamsEventTypeId    Int
+   userId              Int
+-  scheduleEventTypeId Int            @unique
+-  position            Int            @default(0)
+-  teamsEventType      TeamsEventType @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
+-  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+-  scheduleEventType   EventType      @relation("TeamsHostScheduleEvent", fields: [scheduleEventTypeId], references: [id], onDelete: Cascade)
++  scheduleEventTypeId Int               @unique
++  position            Int               @default(0)
++  priority            TeamsHostPriority @default(MEDIUM)
++  weight              Int               @default(100)
++  isFixed             Boolean           @default(false)
++  teamsEventType      TeamsEventType    @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
++  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
++  scheduleEventType   EventType         @relation("TeamsHostScheduleEvent", fields: [scheduleEventTypeId], references: [id], onDelete: Cascade)
+ 
+   @@unique([teamsEventTypeId, userId])
+   @@index([userId])
+   @@map("teams_host")
+ }
++
++model TeamsAssignment {
++  id               Int            @id @default(autoincrement())
++  teamsEventTypeId Int
++  bookingId        Int
++  bookingUid       String
++  assignedUserId   Int
++  hostUserIds      Int[]
++  assignmentReason String
++  createdAt        DateTime       @default(now())
++  supersededAt     DateTime?
++  teamsEventType   TeamsEventType @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
++  booking          Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
++  assignedUser     User           @relation("TeamsAssignmentUser", fields: [assignedUserId], references: [id], onDelete: Cascade)
++
++  @@index([teamsEventTypeId])
++  @@index([bookingId])
++  @@index([bookingUid])
++  @@index([assignedUserId])
++  @@map("teams_assignment")
++}
