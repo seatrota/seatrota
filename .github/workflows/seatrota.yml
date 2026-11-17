@@ -29,7 +29,20 @@ jobs:
         run: corepack enable
 
       - name: Install
-        run: yarn install --immutable
+        run: |
+          set -euo pipefail
+          # @prisma/engines postinstall downloads a binary and can abort with
+          # ECONNRESET. Retry the immutable install before failing the job.
+          for attempt in 1 2 3; do
+            if yarn install --immutable; then
+              exit 0
+            fi
+            echo "yarn install failed (attempt ${attempt})"
+            if [[ "${attempt}" -eq 3 ]]; then
+              exit 1
+            fi
+            sleep 15
+          done
 
       - name: Lint teams packages
         run: yarn biome lint packages/teams-core packages/teams-scheduling packages/teams-booking packages/teams-workflows packages/teams-insights packages/teams-sso packages/teams-billing
