@@ -23,16 +23,21 @@ docs/insights
 docs/hosting
 docs/upstream-sync.md
 docs/STATUS.md
+docs/QUICKSTART.md
 scripts/cleanroom-check.sh
 scripts/cleanroom-selftest.sh
 scripts/dev-boot-smoke.sh
 scripts/upstream-sync.sh
 scripts/seatrota-owned.txt
+scripts/quickstart-smoke.sh
+scripts/quickstart-first-team.mjs
 .github/workflows/seatrota.yml
+.github/workflows/release.yml
 .github/spdx-header-agpl.txt
 LICENSE-AGPL
 UPSTREAM.md
 README.md
+CHANGELOG.md
 CONTRIBUTING.md
 
 remove: packages/app-store/tsconfig.build.tsbuildinfo

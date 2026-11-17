@@ -1,66 +1,48 @@
 # SeatRota
 
-SeatRota is team scheduling for Cal.diy: team booking pages, round-robin and collective scheduling, reminders, insights, and SSO. Self-hosting is free and complete. Hosted plans come later.
+SeatRota adds team scheduling to self-hosted Cal.diy: teams and invites, round-robin and collective events, email reminder workflows, an insights dashboard and OIDC SSO, shipped as a Docker image.
 
-Works with Cal.diy.
+Works with Cal.diy. Website: <https://seatrota.github.io>
 
-## Status
+Hosted cloud coming, join the waitlist at <https://seatrota.github.io>.
 
-Early. This tree is M0 scaffolding: the MIT Cal.diy snapshot recorded in [UPSTREAM.md](./UPSTREAM.md), the `packages/teams-*` packages, clean-room checks, and the patch queue under `patches/`. The features above are the product direction. They are not finished behavior yet.
-
-## Development
-
-You need Node.js 22, Yarn 4.12 (the `packageManager` in `package.json`), and Docker for Postgres.
+## Quickstart
 
 ```sh
-cp .env.example .env
-cp .env.appStore.example .env.appStore
+git clone https://github.com/seatrota/seatrota.git && cd seatrota
+cp docker/seatrota.env.example docker/seatrota.env
+sed -i -e "s|^NEXTAUTH_SECRET=.*|NEXTAUTH_SECRET=$(openssl rand -hex 32)|" -e "s|^CALENDSO_ENCRYPTION_KEY=.*|CALENDSO_ENCRYPTION_KEY=$(openssl rand -hex 16)|" -e "s|^CRON_API_KEY=.*|CRON_API_KEY=$(openssl rand -hex 32)|" docker/seatrota.env
+docker pull ghcr.io/seatrota/seatrota:v0.1.0
+docker compose -f docker/compose.yml up
 ```
 
-Generate `NEXTAUTH_SECRET` with `openssl rand -base64 32` and `CALENDSO_ENCRYPTION_KEY` with `openssl rand -base64 24`. Put both in `.env`.
+Then open <http://localhost:3000>. On an empty database it starts first-run setup, where you create the administrator account. [docs/QUICKSTART.md](docs/QUICKSTART.md) covers the required environment variables, creating your first team, SSO with Keycloak or any OIDC provider, and building the image from source.
 
-Postgres for local `yarn dev` is `packages/prisma/docker-compose.yml` (host port 5450, user `postgres`, trust auth). The root `docker-compose.yml` also includes Postgres.
+## Features
 
-```sh
-docker compose -f packages/prisma/docker-compose.yml up -d
-```
+- **Teams and invites.** Teams with owner, admin and member roles, and invites sent by email. Each team has its own event types and a public booking page at `/team/<slug>`.
+- **Round-robin and collective events.**
+  - Round-robin picks the host by priority, weight and fixed hosts, then by who was booked least recently. If the assigned host cancels, the booking moves to another host.
+  - Collective events offer only the times every host is free, and add every host to the booking.
+- **Email reminder workflows.** Each event type can have templated email reminders, sent a set number of minutes before the start or after the end, to the attendee or the hosts. A cron route, `POST /api/cron/teams-reminders`, sends them. SMS is not supported.
+- **Insights.** For any date range: bookings, cancellations and no-shows, counts per member, and how round-robin bookings were spread across hosts.
+- **OIDC SSO.**
+  - Any OpenID Connect provider, set up per team or for the whole instance. The guides cover Keycloak, Authentik, Google Workspace and Entra ID.
+  - Group-to-role mapping, and auto-join for people on a verified email domain.
+  - Password login can be turned off for verified domains.
+  - SAML is not supported.
+- **Docker.**
+  - The image checks its environment and runs migrations before it starts serving.
+  - `docker/compose.yml` runs it alongside Postgres.
+  - Release images are published to `ghcr.io/seatrota/seatrota`.
+- **Upstream sync.** SeatRota stays a thin fork. Every change to an upstream file is kept as a patch in `patches/`. [`scripts/upstream-sync.sh`](scripts/upstream-sync.sh) replays those patches onto a newer Cal.diy commit, and CI dry-runs it on every pull request. See [docs/upstream-sync.md](docs/upstream-sync.md).
 
-That compose file creates a database named `cal-saml`. `.env.example` points `DATABASE_URL` at a database named `calendso` on the same server. Create it once:
+Release notes are in [CHANGELOG.md](CHANGELOG.md). Known limits and the build record are in [docs/STATUS.md](docs/STATUS.md).
 
-```sh
-docker compose -f packages/prisma/docker-compose.yml exec -T postgres \
-  psql -U postgres -d cal-saml -c "CREATE DATABASE calendso"
-```
+## Licensing
 
-Then install, migrate, and start the web app:
+SeatRota is built on a snapshot of Cal.diy, the MIT community edition. Files that come from that snapshot remain under the MIT license, with their original notices kept. See [LICENSE](LICENSE) and [UPSTREAM.md](UPSTREAM.md).
 
-```sh
-yarn
-yarn workspace @calcom/prisma db-deploy
-yarn dev
-```
+SeatRota's own code in `packages/teams-*` is licensed AGPL-3.0-only. See [LICENSE-AGPL](LICENSE-AGPL).
 
-The web app listens on http://localhost:3000.
-
-### Build
-
-`yarn build` needs an 8GB Node heap. `DATABASE_URL` must be empty or point at a running Postgres. A URL that does not connect makes the build fail: the Prisma package build runs migrations when `DATABASE_URL` is set. When `DATABASE_URL` is set, `DATABASE_DIRECT_URL` must be empty or point at that same running Postgres. `apps/web/next.config.ts` also throws unless `NEXTAUTH_SECRET`, `CALENDSO_ENCRYPTION_KEY`, and `NEXTAUTH_URL` are set. To build without a database:
-
-```sh
-NODE_OPTIONS=--max-old-space-size=8192 \
-  DATABASE_URL= DATABASE_DIRECT_URL= \
-  NEXTAUTH_URL=http://localhost:3000 \
-  NEXTAUTH_SECRET="$(openssl rand -base64 32)" \
-  CALENDSO_ENCRYPTION_KEY="$(openssl rand -base64 24)" \
-  yarn build
-```
-
-A boot smoke starts that compose Postgres, runs `yarn dev`, waits for HTTP 200, and stops. It is the `dev-boot-smoke` job in [`.github/workflows/seatrota.yml`](./.github/workflows/seatrota.yml), and it runs only on `workflow_dispatch`. A full install plus the Next.js dev server is too heavy for every pull request. GitHub-hosted runners provide Docker. Locally, the same steps are `bash scripts/dev-boot-smoke.sh`.
-
-## Licence
-
-Upstream files from the Cal.diy snapshot stay under the MIT license. Their copyright notices stay in those files. See [LICENSE](./LICENSE) and [UPSTREAM.md](./UPSTREAM.md). The snapshot source is https://github.com/calcom/cal.diy at `ae027bb70e694e2d2c44569f398d6cbcee0389b1`.
-
-`packages/teams-*` is AGPL-3.0-only. See [LICENSE-AGPL](./LICENSE-AGPL). New TypeScript and JavaScript in those packages uses the header in [`.github/spdx-header-agpl.txt`](./.github/spdx-header-agpl.txt).
-
-Works with Cal.diy.
+SeatRota is an independent project and works with Cal.diy.

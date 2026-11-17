@@ -2,8 +2,12 @@
 # Copyright (c) 2026 SeatRota contributors
 #
 # Local stack: Postgres plus the SeatRota image.
+# The image defaults to the published tag. It exists after the v0.1.0 tag is pushed.
 #   cp docker/seatrota.env.example docker/seatrota.env
-#   docker compose -f docker/compose.yml up --build
+#   docker pull ghcr.io/seatrota/seatrota:v0.1.0
+#   docker compose -f docker/compose.yml up
+# Build from this tree instead:
+#   SEATROTA_IMAGE=seatrota:local docker compose -f docker/compose.yml up --build
 name: seatrota
 
 services:
@@ -23,7 +27,8 @@ services:
       retries: 20
 
   seatrota:
-    image: seatrota:local
+    image: ${SEATROTA_IMAGE:-ghcr.io/seatrota/seatrota:v0.1.0}
+    pull_policy: missing
     build:
       context: ..
       dockerfile: docker/Dockerfile

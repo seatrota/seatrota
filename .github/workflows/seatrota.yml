@@ -297,6 +297,59 @@ jobs:
           bash scripts/upstream-sync.sh --dry-run not-a-real-ref-0000 >/dev/null 2>&1; test $? -eq 1 || exit 1
           echo "usage and unknown-ref errors exit 1"
 
+  quickstart:
+    name: Quickstart (fresh clone)
+    # Runs docs/QUICKSTART.md from a fresh clone of this commit, then drives
+    # first-run setup, a first team and the SSO panel in a browser.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free runner disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install the browser driver for the first-team check
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund playwright@1.57.0
+          npx playwright install --with-deps chromium
+          echo "QUICKSTART_NODE_DIR=${{ runner.temp }}" >> "$GITHUB_ENV"
+          echo "QUICKSTART_SCREENSHOT=${{ github.workspace }}/quickstart-failure.png" >> "$GITHUB_ENV"
+
+      # Until v0.1.0 is tagged the registry has no image, so build this commit
+      # under the name the guide pulls. The guide's docker pull then finds it
+      # locally; the registry pull itself is checked after the tag is pushed.
+      - name: Build the image the guide pulls
+        run: docker build -f docker/Dockerfile -t ghcr.io/seatrota/seatrota:v0.1.0 .
+
+      - name: Run docs/QUICKSTART.md
+        env:
+          QUICKSTART_DOWN: "1"
+        run: bash scripts/quickstart-smoke.sh "$RUNNER_TEMP/quickstart"
+
+      - name: Run the README quickstart
+        env:
+          QUICKSTART_DOC: README.md
+        run: bash scripts/quickstart-smoke.sh "$RUNNER_TEMP/readme"
+
+      - name: Stack logs
+        if: always()
+        run: docker compose -f "$RUNNER_TEMP/readme/seatrota/docker/compose.yml" logs --tail 150 || docker compose -f "$RUNNER_TEMP/quickstart/seatrota/docker/compose.yml" logs --tail 150 || true
+
+      - name: Keep the failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quickstart-failure
+          path: quickstart-failure.png
+          if-no-files-found: ignore
+
   sso-keycloak:
     name: OIDC e2e (Keycloak)
     runs-on: ubuntu-24.04

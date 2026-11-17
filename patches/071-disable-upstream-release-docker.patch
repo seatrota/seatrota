@@ -1,0 +1,12 @@
+diff --git a/.github/workflows/release-docker.yaml b/.github/workflows/release-docker.yaml
+index e9012e3..debb358 100644
+--- a/.github/workflows/release-docker.yaml
++++ b/.github/workflows/release-docker.yaml
+@@ -32,6 +32,7 @@ on:
+ jobs:
+   prepare:
+     name: "Prepare Release"
++    if: github.repository == 'calcom/cal.diy'
+     runs-on: ubuntu-latest
+     outputs:
+       release_tag: ${{ steps.determine-tag.outputs.release_tag }}
