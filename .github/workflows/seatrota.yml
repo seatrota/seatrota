@@ -17,7 +17,8 @@ env:
 jobs:
   teams:
     name: Lint, type-check, unit, clean-room
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest is 26.04, and Playwright 1.57 has no Chromium build for it.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,7 +74,8 @@ jobs:
   dev-boot-smoke:
     name: Dev boot smoke (manual)
     if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest is 26.04, and Playwright 1.57 has no Chromium build for it.
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +92,8 @@ jobs:
 
   teams-e2e:
     name: Teams core e2e
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest is 26.04, and Playwright 1.57 has no Chromium build for it.
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     services:
       postgres:
@@ -134,9 +137,7 @@ jobs:
         run: yarn build
 
       - name: Install Playwright Chromium
-        # Playwright 1.57 has no --with-deps manifest for the Ubuntu 26.04 runner.
-        # The browser binary installs without that OS package step.
-        run: yarn playwright install chromium
+        run: yarn playwright install --with-deps chromium
 
       - name: Playwright teams-core e2e
         run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
