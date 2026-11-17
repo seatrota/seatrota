@@ -158,10 +158,14 @@ jobs:
             console.log('External contribution requires "run-ci" label from a maintainer');
             core.setOutput('is-trusted', false);
 
+  # SeatRota gate: this job checks out with permissions limited to
+  # pull-requests: read. That works on the public upstream repository and
+  # fails in this private org ("repository not found"). The jobs after it
+  # are the upstream PR matrix. See patches/003-disable-upstream-pr-update.md.
   prepare:
     name: Prepare
     needs: [trust-check]
-    if: needs.trust-check.outputs.is-trusted == 'true'
+    if: github.repository == 'calcom/cal.diy' && needs.trust-check.outputs.is-trusted == 'true'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read

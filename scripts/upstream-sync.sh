@@ -4,7 +4,8 @@
 #
 # Builds the diff in a temporary clone created with
 #   git clone --shallow-since=2026-04-16
-# then applies it with git apply and re-applies patches/*.patch and patches/*.diff.
+# then applies it with git apply and re-applies patches/*.patch and patches/*.diff
+# in lexicographic order.
 # --dry-run checks the diff and does not change the worktree or UPSTREAM.md.
 #
 # UPSTREAM_MIRROR, when set, uses that existing clone instead of cloning again.
@@ -83,9 +84,11 @@ DIFF="$WORKDIR/upstream.diff"
 git -C "$MIRROR" diff --binary "$CURRENT" "$FULL" >"$DIFF"
 echo "upstream-sync: diff ${CURRENT}..${FULL} ($(wc -c <"$DIFF") bytes) date ${DATE}"
 
+# Lexicographic order on the NNN- prefix (C locale), so 000 is reversed and
+# re-applied before 001. Markdown notes in patches/ are not in this list.
 shopt -s nullglob
 PATCHES=(patches/*.patch patches/*.diff)
-IFS=$'\n' PATCHES=($(printf '%s\n' "${PATCHES[@]}" | sort))
+IFS=$'\n' PATCHES=($(printf '%s\n' "${PATCHES[@]}" | LC_ALL=C sort))
 shopt -u nullglob
 
 if [[ "$DRY_RUN" -eq 1 ]]; then

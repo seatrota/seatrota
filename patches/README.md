@@ -1,6 +1,11 @@
 # Patch queue
 
-`patches/NNN-*.md` documents each seam patched in upstream core files. There are none yet.
+`patches/NNN-*.md` documents each seam patched in upstream core files.
+
+- `000-drop-dangling-enterprise-refs` records commit `e9c8925`. The cleanup stays on `main`; the `.patch` is what sync replays.
+- `001-drop-commercial-license-upsell` deletes unreferenced upsell strings from `packages/i18n/locales/*/common.json`.
+- `002-drop-dangling-saml-doc-link` removes a dangling path comment from `.env.example`.
+- `003-disable-upstream-pr-update` keeps the upstream PR Update workflow from running its Prepare job in this repository.
 
 When a seam exists:
 

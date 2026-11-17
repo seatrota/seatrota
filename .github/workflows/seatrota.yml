@@ -5,9 +5,14 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   HUSKY: "0"
+  # Any job that runs a full `yarn build` needs this heap. No pull_request
+  # job in this workflow runs that build. The manual dev-boot smoke below
+  # inherits it for `yarn dev`.
+  NODE_OPTIONS: --max-old-space-size=8192
 
 jobs:
   teams:
@@ -15,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The clean-room check finds the snapshot commit by message.
+          # A depth-1 checkout does not contain it.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -24,7 +33,20 @@ jobs:
         run: corepack enable
 
       - name: Install
-        run: yarn install --immutable
+        run: |
+          set -euo pipefail
+          # @prisma/engines postinstall downloads a binary and can abort with
+          # ECONNRESET. Retry the immutable install before failing the job.
+          for attempt in 1 2 3; do
+            if yarn install --immutable; then
+              exit 0
+            fi
+            echo "yarn install failed (attempt ${attempt})"
+            if [[ "${attempt}" -eq 3 ]]; then
+              exit 1
+            fi
+            sleep 15
+          done
 
       - name: Lint teams packages
         run: yarn biome lint packages/teams-core packages/teams-scheduling packages/teams-booking packages/teams-workflows packages/teams-insights packages/teams-sso packages/teams-billing
@@ -35,8 +57,33 @@ jobs:
       - name: Unit tests
         run: yarn workspace @seatrota/teams-core test
 
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
       - name: Clean-room check
         run: bash scripts/cleanroom-check.sh
 
       - name: Clean-room self-test
         run: bash scripts/cleanroom-selftest.sh
+
+  # Full `yarn install` plus `yarn dev` of the web app is too heavy for every
+  # pull request. Run it by hand. GitHub-hosted runners provide Docker.
+  # The job starts packages/prisma/docker-compose.yml, waits for HTTP 200,
+  # then stops Postgres and the dev server.
+  dev-boot-smoke:
+    name: Dev boot smoke (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Enable the repository package manager
+        run: corepack enable
+
+      - name: Boot smoke
+        run: bash scripts/dev-boot-smoke.sh

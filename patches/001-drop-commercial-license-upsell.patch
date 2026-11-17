@@ -1,0 +1,776 @@
+diff --git a/packages/i18n/locales/ar/common.json b/packages/i18n/locales/ar/common.json
+index e3d444d..63c3661 100644
+--- a/packages/i18n/locales/ar/common.json
++++ b/packages/i18n/locales/ar/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "رسالة البداية",
+   "codebase_has_to_stay_opensource": "يجب أن يظل مصدر البرنامج مفتوحًا، سواء تم تعديله أم لا",
+   "cannot_repackage_codebase": "لا يمكنك بيع مصدر البرنامج أو تغييره للتصرف فيه (repackage)",
+-  "acquire_license": "احصل عن طريق البريد الإلكتروني على ترخيص تجاري لإزالة هذه الشروط",
+   "terms_summary": "ملخص الشروط",
+   "open_env": "افتح ‎.env ووافق على الترخيص",
+   "env_changed": "لقد قمت بتغيير ‎.env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "إنشاء أحداث في",
+   "missing_license": "الترخيص مفقود",
+   "next_steps": "الخطوات التالية",
+-  "acquire_commercial_license": "الحصول على ترخيص تجاري",
+   "the_infrastructure_plan": "تعتمد خطة البنية التحتية على الاستخدام وتتضمن خصومات مناسبة للأعمال التجارية حديثة الإنشاء.",
+   "prisma_studio_tip": "إنشاء حساب عبر Prisma Studio",
+   "prisma_studio_tip_description": "تعرّف على كيفية إعداد مستخدمك الأول",
+diff --git a/packages/i18n/locales/az/common.json b/packages/i18n/locales/az/common.json
+index 30ffabe..777a89d 100644
+--- a/packages/i18n/locales/az/common.json
++++ b/packages/i18n/locales/az/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Mesaja başla",
+   "codebase_has_to_stay_opensource": "Kod bazası dəyişdirilsə də, açıq mənbə olaraq qalmalıdır",
+   "cannot_repackage_codebase": "Kod bazasını yenidən paketləyə və ya sata bilməzsiniz",
+-  "acquire_license": "Bu şərtləri aradan qaldırmaq üçün kommersiya lisenziyası əldə etmək üçün e-poçt vasitəsilə əlaqə saxlayın",
+   "terms_summary": "Şərtlərin xülasəsi",
+   "open_env": ".env faylını açın və lisenziyamızı qəbul edin",
+   "env_changed": ".env faylını dəyişdirdim",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Tədbirləri yarat",
+   "missing_license": "Lisenziya yoxdur",
+   "next_steps": "Növbəti Addımlar",
+-  "acquire_commercial_license": "Kommersiya lisenziyası əldə edin",
+   "the_infrastructure_plan": "İnfrastruktur planı istifadəyə əsaslanır və startaplar üçün endirimlər təklif edir.",
+   "prisma_studio_tip": "Prisma Studio vasitəsilə hesab yaradın",
+   "prisma_studio_tip_description": "İlk istifadəçinizi necə quracağınızı öyrənin",
+diff --git a/packages/i18n/locales/bg/common.json b/packages/i18n/locales/bg/common.json
+index 8c5d04f..499897c 100644
+--- a/packages/i18n/locales/bg/common.json
++++ b/packages/i18n/locales/bg/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Начално съобщение",
+   "codebase_has_to_stay_opensource": "Кодовата база трябва да остане с отворен код, независимо дали е модифицирана или не",
+   "cannot_repackage_codebase": "Не можете да преопаковате или продавате кодовата база",
+-  "acquire_license": "Получете търговски лиценз за премахване на тези условия чрез имейл до",
+   "terms_summary": "Обобщение на условията",
+   "open_env": "Отворете .env и се съгласете с нашия лиценз",
+   "env_changed": "Променил съм моя .env файл",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Създай събития в",
+   "missing_license": "Липсващ лиценз",
+   "next_steps": "Следващи стъпки",
+-  "acquire_commercial_license": "Придобий търговски лиценз",
+   "the_infrastructure_plan": "Инфраструктурният план е базиран на използването и предлага отстъпки, подходящи за стартъпи",
+   "prisma_studio_tip": "Създай акаунт чрез Prisma Studio",
+   "prisma_studio_tip_description": "Научи как да настроиш първия си потребител",
+diff --git a/packages/i18n/locales/bn/common.json b/packages/i18n/locales/bn/common.json
+index 09d1a79..eb1b91a 100644
+--- a/packages/i18n/locales/bn/common.json
++++ b/packages/i18n/locales/bn/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "বার্তা শুরু করুন",
+   "codebase_has_to_stay_opensource": "কোডবেসকে ওপেন সোর্স থাকতে হবে, এটি সংশোধন করা হয়েছিল বা না হোক",
+   "cannot_repackage_codebase": "আপনি কোডবেস পুনরায় বিক্রয় বা বিক্রয় করতে পারবেন না",
+-  "acquire_license": "ইমেল করে এই শর্তাদি অপসারণের জন্য বাণিজ্যিক লাইসেন্স অর্জন করুন",
+   "terms_summary": "শর্তাবলীর সংক্ষিপ্তসার",
+   "open_env": ".Env খুলুন এবং আমাদের লাইসেন্সে সম্মত হন",
+   "env_changed": "আমি আমার .env পরিবর্তন করেছি",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "ইভেন্টগুলি তৈরি করুন",
+   "missing_license": "অনুপস্থিত লাইসেন্স",
+   "next_steps": "পরবর্তী পদক্ষেপ",
+-  "acquire_commercial_license": "বাণিজ্যিক লাইসেন্স অর্জন করুন",
+   "the_infrastructure_plan": "অবকাঠামো পরিকল্পনাটি ব্যবহার-ভিত্তিক এবং এর স্টার্টআপ-বান্ধব ছাড় রয়েছে।",
+   "prisma_studio_tip": "প্রিজমা স্টুডিওর মাধ্যমে একটি অ্যাকাউন্ট তৈরি করুন",
+   "prisma_studio_tip_description": "কীভাবে আপনার প্রথম ব্যবহারকারী সেট আপ করবেন তা শিখুন",
+diff --git a/packages/i18n/locales/ca/common.json b/packages/i18n/locales/ca/common.json
+index 49ef842..ea568ae 100644
+--- a/packages/i18n/locales/ca/common.json
++++ b/packages/i18n/locales/ca/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Missatge d'inici",
+   "codebase_has_to_stay_opensource": "El codi font ha de seguir com codi obert, tant si s'ha modificat com si no",
+   "cannot_repackage_codebase": "No pots tornar a empaquetar ni vendre el codi font",
+-  "acquire_license": "Adquireix una llicència comercial per eliminar aquests termes mitjançant un correu electrònic",
+   "terms_summary": "Resum dels termes",
+   "open_env": "Obre .env i accepta la nostra llicència",
+   "env_changed": "He canviat el meu .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Crea esdeveniments a",
+   "missing_license": "Falta la llicència",
+   "next_steps": "Següents passos",
+-  "acquire_commercial_license": "Adquireix una llicència comercial",
+   "the_infrastructure_plan": "El pla d'infraestructura es basa en l'ús i té descomptes per a startups.",
+   "prisma_studio_tip": "Crea un compte mitjançant Prisma Studio",
+   "prisma_studio_tip_description": "Aprèn com configurar el teu primer usuari",
+diff --git a/packages/i18n/locales/cs/common.json b/packages/i18n/locales/cs/common.json
+index ebc8a1b..baa9449 100644
+--- a/packages/i18n/locales/cs/common.json
++++ b/packages/i18n/locales/cs/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Úvodní zpráva",
+   "codebase_has_to_stay_opensource": "Zdrojové kódy musí zůstat jako open source, bez ohledu na to, jestli je upravujete nebo ne",
+   "cannot_repackage_codebase": "Zdrojové kódy nelze vydat upravené nebo přeprodávat",
+-  "acquire_license": "Kontaktujte nás e-mailem, abyste získali komerční licenci a odstranili tyto podmínky",
+   "terms_summary": "Shrnutí podmínek",
+   "open_env": "Otevřete .env a odsouhlaste naši licenci",
+   "env_changed": "Upravil jsem svůj .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Vytvořit události v:",
+   "missing_license": "Chybějící licence",
+   "next_steps": "Další kroky",
+-  "acquire_commercial_license": "Získat komerční licenci",
+   "the_infrastructure_plan": "Infrastruktura se účtuje podle reálného využívání a má příznivé slevy pro startupy.",
+   "prisma_studio_tip": "Vytvořit účet prostřednictvím Prisma Studio",
+   "prisma_studio_tip_description": "Zjistěte, jak nastavit svého prvního uživatele",
+diff --git a/packages/i18n/locales/da/common.json b/packages/i18n/locales/da/common.json
+index 0fa37d9..adbf4b0 100644
+--- a/packages/i18n/locales/da/common.json
++++ b/packages/i18n/locales/da/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Begynd besked",
+   "codebase_has_to_stay_opensource": "Kodebasen skal forblive open source, uanset om den blev ændret eller ej",
+   "cannot_repackage_codebase": "Du kan ikke ompakke eller sælge kodebasen",
+-  "acquire_license": "Erhverv en kommerciel licens for at fjerne disse vilkår ved at e-maile",
+   "terms_summary": "Opsummering af vilkår",
+   "open_env": "Åben .env og acceptér vores Licens",
+   "env_changed": "Jeg har ændret min .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Opret begivenheder på",
+   "missing_license": "Manglende Licens",
+   "next_steps": "Næste Trin",
+-  "acquire_commercial_license": "Erhverv en kommerciel licens",
+   "the_infrastructure_plan": "Infrastrukturplanen er brugerbaseret og har startup-venlige rabatter.",
+   "prisma_studio_tip": "Opret en konto via Prisma Studio",
+   "prisma_studio_tip_description": "Lær hvordan du konfigurerer din første bruger",
+diff --git a/packages/i18n/locales/de/common.json b/packages/i18n/locales/de/common.json
+index 61ea265..b2069de 100644
+--- a/packages/i18n/locales/de/common.json
++++ b/packages/i18n/locales/de/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Nachricht starten",
+   "codebase_has_to_stay_opensource": "Die Codebasis muss Open Source bleiben, unabhängig davon, ob sie geändert wurde oder nicht",
+   "cannot_repackage_codebase": "Sie dürfen die Codebasis nicht weiter verkaufen",
+-  "acquire_license": "Erwerben Sie eine kommerzielle Lizenz per Email, um diese Bedingungen zu entfernen",
+   "terms_summary": "Zusammenfassung der Bedingungen",
+   "open_env": ".env öffnen und unserer Lizenz zustimmen",
+   "env_changed": "Ich habe mein .env geändert",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Erstelle Termine in:",
+   "missing_license": "Lizenz fehlt",
+   "next_steps": "Nächste Schritte",
+-  "acquire_commercial_license": "Eine kommerzielle Lizenz erwerben",
+   "the_infrastructure_plan": "Der Infrastrukturplan ist nutzungsbasiert und bietet Startup-freundliche Discounts an.",
+   "prisma_studio_tip": "Erstellen Sie ein Konto über Prisma Studio",
+   "prisma_studio_tip_description": "Erfahren Sie, wie Sie Ihren ersten Benutzer einrichten können",
+diff --git a/packages/i18n/locales/el/common.json b/packages/i18n/locales/el/common.json
+index 9c141d0..747a4af 100644
+--- a/packages/i18n/locales/el/common.json
++++ b/packages/i18n/locales/el/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Έναρξη μηνύματος",
+   "codebase_has_to_stay_opensource": "Ο κώδικας πρέπει να παραμείνει ανοιχτού κώδικα, είτε έχει τροποποιηθεί είτε όχι",
+   "cannot_repackage_codebase": "Δεν μπορείτε να επανασυσκευάσετε ή να πωλήσετε τον κώδικα",
+-  "acquire_license": "Αποκτήστε εμπορική άδεια για να αφαιρέσετε αυτούς τους όρους στέλνοντας email",
+   "terms_summary": "Περίληψη όρων",
+   "open_env": "Ανοίξτε το .env και συμφωνήστε με την Άδεια χρήσης μας",
+   "env_changed": "Έχω αλλάξει το .env μου",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Δημιουργία συμβάντων σε",
+   "missing_license": "Λείπει η Άδεια Χρήσης",
+   "next_steps": "Επόμενα Βήματα",
+-  "acquire_commercial_license": "Απόκτηση εμπορικής άδειας",
+   "the_infrastructure_plan": "Το πλάνο υποδομής βασίζεται στη χρήση και προσφέρει εκπτώσεις φιλικές προς τις νεοφυείς επιχειρήσεις",
+   "prisma_studio_tip": "Δημιουργία λογαριασμού μέσω Prisma Studio",
+   "prisma_studio_tip_description": "Μάθετε πώς να ρυθμίσετε τον πρώτο σας χρήστη",
+diff --git a/packages/i18n/locales/en/common.json b/packages/i18n/locales/en/common.json
+index b4ce47c..51e4c8c 100644
+--- a/packages/i18n/locales/en/common.json
++++ b/packages/i18n/locales/en/common.json
+@@ -170,7 +170,6 @@
+   "begin_message": "Begin message",
+   "codebase_has_to_stay_opensource": "The codebase has to stay open source, whether it was modified or not",
+   "cannot_repackage_codebase": "You can not repackage or sell the codebase",
+-  "acquire_license": "Acquire a commercial license to remove these terms by emailing",
+   "terms_summary": "Summary of terms",
+   "open_env": "Open .env and agree to our license",
+   "env_changed": "I've changed my .env",
+@@ -1436,7 +1435,6 @@
+   "create_events_on": "Create events on",
+   "missing_license": "Missing license",
+   "next_steps": "Next steps",
+-  "acquire_commercial_license": "Acquire a commercial license",
+   "the_infrastructure_plan": "The infrastructure plan is usage-based and has startup-friendly discounts.",
+   "prisma_studio_tip": "Create an account via Prisma Studio",
+   "prisma_studio_tip_description": "Learn how to set up your first user",
+diff --git a/packages/i18n/locales/es-419/common.json b/packages/i18n/locales/es-419/common.json
+index 41e1e3c..5595969 100644
+--- a/packages/i18n/locales/es-419/common.json
++++ b/packages/i18n/locales/es-419/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Iniciar mensaje",
+   "codebase_has_to_stay_opensource": "El código base debe permanecer de código abierto, ya sea modificado o no",
+   "cannot_repackage_codebase": "No puedes reempaquetar o vender el código base",
+-  "acquire_license": "Adquiere una licencia comercial para eliminar estos términos enviando un correo electrónico a",
+   "terms_summary": "Resumen de términos",
+   "open_env": "Abre .env y acepta nuestra licencia",
+   "env_changed": "He cambiado mi .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Crear eventos en",
+   "missing_license": "Licencia faltante",
+   "next_steps": "Próximos pasos",
+-  "acquire_commercial_license": "Adquirir una licencia comercial",
+   "the_infrastructure_plan": "El plan de infraestructura se basa en el uso y tiene descuentos amigables para startups.",
+   "prisma_studio_tip": "Crea una cuenta a través de Prisma Studio",
+   "prisma_studio_tip_description": "Aprende cómo configurar tu primer usuario",
+diff --git a/packages/i18n/locales/es/common.json b/packages/i18n/locales/es/common.json
+index 5f99067..f65fb96 100644
+--- a/packages/i18n/locales/es/common.json
++++ b/packages/i18n/locales/es/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Iniciar Mensaje",
+   "codebase_has_to_stay_opensource": "El código base debe permanecer en código abierto, si fue modificado o no",
+   "cannot_repackage_codebase": "No puede reempaquetar o vender el código base",
+-  "acquire_license": "Adquiera una licencia comercial para eliminar estos términos por correo electrónico",
+   "terms_summary": "Resumen de los términos",
+   "open_env": "Abra .env y acepte nuestra licencia",
+   "env_changed": "He cambiado mi .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Crear eventos en",
+   "missing_license": "Falta la licencia",
+   "next_steps": "Pasos siguientes",
+-  "acquire_commercial_license": "Adquirir una licencia comercial",
+   "the_infrastructure_plan": "El plan de infraestructura está basado en el uso y tiene descuentos favorables para empresas emergentes.",
+   "prisma_studio_tip": "Crea una cuenta a través de Prisma Studio",
+   "prisma_studio_tip_description": "Aprende cómo configurar tu primer usuario",
+diff --git a/packages/i18n/locales/et/common.json b/packages/i18n/locales/et/common.json
+index e555848..d93ebb2 100644
+--- a/packages/i18n/locales/et/common.json
++++ b/packages/i18n/locales/et/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Alusta sõnumit",
+   "codebase_has_to_stay_opensource": "Koodibaas peab jääma avatud lähtekoodiga, olenemata sellest, kas seda muudeti või mitte",
+   "cannot_repackage_codebase": "Te ei tohi koodibaasi ümber pakkida ega müüa",
+-  "acquire_license": "Tingimuste eemaldamiseks hankige kommertslitsents e-kirja teel",
+   "terms_summary": "Tingimuste kokkuvõte",
+   "open_env": "Avage .env ja nõustuge meie litsentsiga",
+   "env_changed": "Ma olen muutnud oma .env faili",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Loo sündmusi",
+   "missing_license": "Puuduv litsents",
+   "next_steps": "Järgmised sammud",
+-  "acquire_commercial_license": "Oma ärilitsents",
+   "the_infrastructure_plan": "Infrastruktuuri plaan on kasutuspõhine ja sellel on käivitussõbralikud allahindlused.",
+   "prisma_studio_tip": "Loo konto Prisma Studio kaudu",
+   "prisma_studio_tip_description": "Õppige oma esimest kasutajat seadistama",
+diff --git a/packages/i18n/locales/eu/common.json b/packages/i18n/locales/eu/common.json
+index 845e029..16a950a 100644
+--- a/packages/i18n/locales/eu/common.json
++++ b/packages/i18n/locales/eu/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Hasi mezua",
+   "codebase_has_to_stay_opensource": "Kode-basea kode irekia izan behar da, aldatuta egon ala ez",
+   "cannot_repackage_codebase": "Ezin duzu kode-basea berriz paketatu edo saldu",
+-  "acquire_license": "Lortu lizentzia komertziala baldintza hauek kentzeko email bidez",
+   "terms_summary": "Terminoen laburpena",
+   "open_env": "Ireki .env eta onartu gure Lizentzia",
+   "env_changed": "Nire .env aldatu dut",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Sortu gertaerak hemen:",
+   "missing_license": "Lizentzia falta da",
+   "next_steps": "Hurrengo pausoak",
+-  "acquire_commercial_license": "Eskuratu lizentzia komertziala",
+   "the_infrastructure_plan": "Azpiegitura plana erabileraren araberakoa da eta startup-entzako deskontuak ditu.",
+   "prisma_studio_tip": "Sortu kontu bat Prisma Studio bidez",
+   "prisma_studio_tip_description": "Ikasi nola konfiguratu zure lehen erabiltzailea",
+diff --git a/packages/i18n/locales/fi/common.json b/packages/i18n/locales/fi/common.json
+index 7a0e760..ce89c05 100644
+--- a/packages/i18n/locales/fi/common.json
++++ b/packages/i18n/locales/fi/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Aloita viesti",
+   "codebase_has_to_stay_opensource": "Lähdekoodin on pysyttävä avoimena, riippumatta siitä onko sitä muokattu vai ei",
+   "cannot_repackage_codebase": "Et voi paketoida tai myydä lähdekoodia uudelleen",
+-  "acquire_license": "Hanki kaupallinen lisenssi näiden ehtojen poistamiseksi lähettämällä sähköpostia osoitteeseen",
+   "terms_summary": "Yhteenveto ehdoista",
+   "open_env": "Avaa .env ja hyväksy lisenssimme",
+   "env_changed": "Olen muuttanut .env-tiedostoa",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Luo tapahtumia",
+   "missing_license": "Lisenssi puuttuu",
+   "next_steps": "Seuraavat vaiheet",
+-  "acquire_commercial_license": "Hanki kaupallinen lisenssi",
+   "the_infrastructure_plan": "Infrastruktuurisuunnitelma perustuu käyttöön ja sisältää startup-ystävällisiä alennuksia",
+   "prisma_studio_tip": "Luo tili Prisma Studion kautta",
+   "prisma_studio_tip_description": "Opi miten luot ensimmäisen käyttäjän",
+diff --git a/packages/i18n/locales/fr/common.json b/packages/i18n/locales/fr/common.json
+index e40da1e..97d301f 100644
+--- a/packages/i18n/locales/fr/common.json
++++ b/packages/i18n/locales/fr/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Commencer le message",
+   "codebase_has_to_stay_opensource": "La base de code doit rester open source, qu'elle ait été modifiée ou non",
+   "cannot_repackage_codebase": "Vous ne pouvez pas restructurer ou vendre la base de code",
+-  "acquire_license": "Obtenez une licence commerciale pour supprimer ces termes en envoyant un e-mail",
+   "terms_summary": "Résumé des conditions",
+   "open_env": "Ouvrez le fichier .env et acceptez notre licence",
+   "env_changed": "J'ai modifié mon fichier .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Créer des événements dans :",
+   "missing_license": "Licence manquante",
+   "next_steps": "Prochaines étapes",
+-  "acquire_commercial_license": "Obtenir une licence commerciale",
+   "the_infrastructure_plan": "Le plan d'infrastructure est basé sur l'utilisation et propose des réductions adaptées aux startups.",
+   "prisma_studio_tip": "Créer un compte via Prisma Studio",
+   "prisma_studio_tip_description": "Découvrez comment configurer votre premier utilisateur",
+diff --git a/packages/i18n/locales/he/common.json b/packages/i18n/locales/he/common.json
+index d97d30c..08e9d84 100644
+--- a/packages/i18n/locales/he/common.json
++++ b/packages/i18n/locales/he/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "התחלת הודעה",
+   "codebase_has_to_stay_opensource": "בין אם בוצעו שינויים בבסיס הקוד ובין אם לא, הקוד חייב להישאר פתוח",
+   "cannot_repackage_codebase": "לא ניתן לארוז מחדש או למכור את בסיס הקוד",
+-  "acquire_license": "כדי להסיר את התנאים האלה, ניתן לקנות רישיון מסחרי על ידי שליחת דוא\"ל",
+   "terms_summary": "סיכום התנאים",
+   "open_env": "יש לפתוח את ‎.env ולאשר את הרישיון שלנו",
+   "env_changed": "שיניתי את ה־‎.env שלי",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "ליצור אירועים ב-",
+   "missing_license": "חסר רישיון",
+   "next_steps": "השלבים הבאים",
+-  "acquire_commercial_license": "רכישת רישיון לשימוש מסחרי",
+   "the_infrastructure_plan": "חבילת הבסיס מחויבת לפי שימוש ומוצעת בהנחות למתחילים.",
+   "prisma_studio_tip": "יצירת חשבון דרך Prisma Studio",
+   "prisma_studio_tip_description": "למד כיצד ניתן להגדיר את המשתמש הראשון",
+diff --git a/packages/i18n/locales/hr/common.json b/packages/i18n/locales/hr/common.json
+index d3b2069..a78c679 100644
+--- a/packages/i18n/locales/hr/common.json
++++ b/packages/i18n/locales/hr/common.json
+@@ -84,7 +84,6 @@
+   "begin_message": "Započnite poruku",
+   "codebase_has_to_stay_opensource": "Izvorni kôd mora ostati otvoren, bez obzira da li je izmijenjen ili ne",
+   "cannot_repackage_codebase": "Ne možete prepakirati ili prodati izvorni kôd",
+-  "acquire_license": "Nabavite komercijalnu licencu za uklanjanje ovih uvjeta slanjem e-poruke",
+   "terms_summary": "Pregled uvjeta",
+   "open_env": "Otvorite .env i prihvatite našu licencu",
+   "env_changed": "Promijenio/la sam moj .env",
+diff --git a/packages/i18n/locales/hu/common.json b/packages/i18n/locales/hu/common.json
+index 24686e1..f4c88cf 100644
+--- a/packages/i18n/locales/hu/common.json
++++ b/packages/i18n/locales/hu/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Üzenet indítása",
+   "codebase_has_to_stay_opensource": "A kódbázisnak nyílt forráskódúnak kell maradnia, akár módosították, akár nem",
+   "cannot_repackage_codebase": "A kódbázist nem lehet újracsomagolni vagy eladni",
+-  "acquire_license": "Szerezzen kereskedelmi engedélyt a feltételek eltávolításához e-mailben",
+   "terms_summary": "A feltételek összefoglalása",
+   "open_env": "Nyissa meg az .env fájlt, és fogadja el a licencünket",
+   "env_changed": "Megváltoztattam a .env fájlt",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Események létrehozása",
+   "missing_license": "Hiányzó licenc",
+   "next_steps": "Következő lépések",
+-  "acquire_commercial_license": "Szerezzen kereskedelmi licenc-et",
+   "the_infrastructure_plan": "Az infrastruktúra csomag használat alapú, és indulóbarát kedvezményeket tartalmaz.",
+   "prisma_studio_tip": "Hozzon létre fiókot a Prisma Studio segítségével",
+   "prisma_studio_tip_description": "Ismerje meg, hogyan állíthatja be első felhasználóját",
+diff --git a/packages/i18n/locales/id/common.json b/packages/i18n/locales/id/common.json
+index 11f6501..25b2405 100644
+--- a/packages/i18n/locales/id/common.json
++++ b/packages/i18n/locales/id/common.json
+@@ -86,7 +86,6 @@
+   "pay_now": "Bayar sekarang",
+   "codebase_has_to_stay_opensource": "Basis kode harus tetap sebagau sumber terbuka, walau diubah atau tidak",
+   "cannot_repackage_codebase": "Kamu tidak bisa mengemas ulang atau menjual basis kode",
+-  "acquire_license": "Dapatkan lisensi komersial untuk menghilangkan ketentuan ini dengan mengirimkan email",
+   "terms_summary": "Ringkasan ketentuan",
+   "open_env": "Buka .env dan setujui lisensi kami",
+   "env_changed": "Saya telah mengubah .env saya",
+diff --git a/packages/i18n/locales/it/common.json b/packages/i18n/locales/it/common.json
+index ded2628..8da9bf4 100644
+--- a/packages/i18n/locales/it/common.json
++++ b/packages/i18n/locales/it/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Inizia messaggio",
+   "codebase_has_to_stay_opensource": "Il codebase deve rimanere open source, che sia stato modificato o meno",
+   "cannot_repackage_codebase": "Non è possibile rimontare o vendere il codebase",
+-  "acquire_license": "Acquista una licenza commerciale per rimuovere questi termini via email",
+   "terms_summary": "Riassunto dei termini",
+   "open_env": "Apri .env e accetta la nostra licenza",
+   "env_changed": "Ho cambiato il mio .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Crea eventi su:",
+   "missing_license": "Licenza mancante",
+   "next_steps": "Prossimi Passi",
+-  "acquire_commercial_license": "Acquista una licenza commerciale",
+   "the_infrastructure_plan": "Il piano infrastrutturale è basato sull'utilizzo e ha sconti rivolti alle startup.",
+   "prisma_studio_tip": "Crea un account tramite Prisma Studio",
+   "prisma_studio_tip_description": "Scopri come configurare il tuo primo utente",
+diff --git a/packages/i18n/locales/ja/common.json b/packages/i18n/locales/ja/common.json
+index 3f1804b..15c29bb 100644
+--- a/packages/i18n/locales/ja/common.json
++++ b/packages/i18n/locales/ja/common.json
+@@ -173,7 +173,6 @@
+   "begin_message": "メッセージを開始",
+   "codebase_has_to_stay_opensource": "コードベースは、変更されたかどうかを問わず、オープンソースでなくてはいけません",
+   "cannot_repackage_codebase": "コードベースは、再パッケージ化することも、販売することもできません",
+-  "acquire_license": "電子メールでこれらの条件を削除するための商用ライセンスを取得します",
+   "terms_summary": "利用規約",
+   "open_env": ".envを開き、ライセンスに同意してください",
+   "env_changed": "私の .env を変更しました",
+@@ -1443,7 +1442,6 @@
+   "create_events_on": "以下にイベントを作成する:",
+   "missing_license": "ライセンスが見つかりません",
+   "next_steps": "次のステップ",
+-  "acquire_commercial_license": "商用ライセンスを取得する",
+   "the_infrastructure_plan": "インフラストラクチャプランは使用量に応じて課金され、スタートアップに優しい割引制度もあります。",
+   "prisma_studio_tip": "Prisma Studio を介してアカウントを作成する",
+   "prisma_studio_tip_description": "最初のユーザーを設定する方法を学ぶ",
+diff --git a/packages/i18n/locales/km/common.json b/packages/i18n/locales/km/common.json
+index 2eb3a52..007c66c 100644
+--- a/packages/i18n/locales/km/common.json
++++ b/packages/i18n/locales/km/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "ចាប់ផ្តើមសារ",
+   "codebase_has_to_stay_opensource": "មូលដ្ឋានកូដត្រូវតែរក្សាប្រភពបើកចំហ ទោះបីជាវាត្រូវបានកែប្រែឬអត់ក៏ដោយ។",
+   "cannot_repackage_codebase": "អ្នកមិនអាចវេចខ្ចប់ឡើងវិញ ឬលក់មូលដ្ឋានកូដបានទេ។",
+-  "acquire_license": "ទទួលបានអាជ្ញាប័ណ្ណពាណិជ្ជកម្ម ដើម្បីលុបលក្ខខណ្ឌទាំងនេះដោយការផ្ញើអ៊ីមែល",
+   "terms_summary": "សេចក្តីសង្ខេបនៃលក្ខខណ្ឌ",
+   "open_env": "បើកឯកសារ .env ហើយយល់ព្រមនឹងអាជ្ញាប័ណ្ណរបស់យើង។",
+   "env_changed": "ខ្ញុំបានផ្លាស់ប្តូរឯកសារ .env របស់ខ្ញុំ",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "បង្កើតព្រឹត្តិការណ៍នៅលើ",
+   "missing_license": "បាត់បង់អាជ្ញាប័ណ្ណ",
+   "next_steps": "ជំហានបន្ទាប់",
+-  "acquire_commercial_license": "ទទួលបានអាជ្ញាប័ណ្ណពាណិជ្ជកម្ម",
+   "the_infrastructure_plan": "ផែនការស្ថាបនាគឺផ្អែកលើការប្រើប្រាស់ និងមានការបញ្ចុះតម្លៃសម្រាប់សហគ្រាសចាប់ផ្តើម។",
+   "prisma_studio_tip": "បង្កើតគណនីតាមរយៈ Prisma Studio",
+   "prisma_studio_tip_description": "ស្វែងយល់ពីរបៀបដើម្បីកំណត់អ្នកប្រើប្រាស់ដំបូងរបស់អ្នក",
+diff --git a/packages/i18n/locales/ko/common.json b/packages/i18n/locales/ko/common.json
+index 005ca77..f26d6c8 100644
+--- a/packages/i18n/locales/ko/common.json
++++ b/packages/i18n/locales/ko/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "메시지 시작",
+   "codebase_has_to_stay_opensource": "코드베이스는 수정여부와 상관 없이 오픈 소스로 유지되어야 합니다.",
+   "cannot_repackage_codebase": "코드베이스를 재배포 혹은 재판매할 수 없습니다.",
+-  "acquire_license": "상업 저작권",
+   "terms_summary": "용어 요약",
+   "open_env": ".env 를 열고 라이선스에 동의하세요.",
+   "env_changed": "내 env.를 저장했습니다.",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "이벤트 생성일:",
+   "missing_license": "라이선스 없음",
+   "next_steps": "다음 단계",
+-  "acquire_commercial_license": "상용 라이선스 취득하기",
+   "the_infrastructure_plan": "인프라 플랜은 사용량 기반이고 스타트업 위주의 할인을 제공합니다.",
+   "prisma_studio_tip": "Prisma Studio를 통해 계정 생성",
+   "prisma_studio_tip_description": "첫 사용자 설정 방법 알아보기",
+diff --git a/packages/i18n/locales/nl/common.json b/packages/i18n/locales/nl/common.json
+index 271d2bc..2fbed83 100644
+--- a/packages/i18n/locales/nl/common.json
++++ b/packages/i18n/locales/nl/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Begin Bericht",
+   "codebase_has_to_stay_opensource": "De codebase moet open source blijven, ongeacht of deze is gewijzigd of niet",
+   "cannot_repackage_codebase": "U kunt de codebase niet opnieuw verpakken of verkopen",
+-  "acquire_license": "Schaf via e-mail een commerciële licentie aan om deze voorwaarden te verwijderen",
+   "terms_summary": "Samenvatting van voorwaarden",
+   "open_env": "Open .env en ga akkoord met onze voorwaarden",
+   "env_changed": "Ik heb mijn .env gewijzigd",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Maak gebeurtenissen aan in de",
+   "missing_license": "Ontbrekende licentie",
+   "next_steps": "Volgende stappen",
+-  "acquire_commercial_license": "Verkrijg een commerciële licentie",
+   "the_infrastructure_plan": "Het infrastructuurabonnement is gebaseerd op gebruik en heeft speciale kortingen voor start-ups.",
+   "prisma_studio_tip": "Maak een account aan via Prisma Studio",
+   "prisma_studio_tip_description": "Leer hoe u uw eerste gebruiker instelt",
+diff --git a/packages/i18n/locales/no/common.json b/packages/i18n/locales/no/common.json
+index 432f572..5f44bd8 100644
+--- a/packages/i18n/locales/no/common.json
++++ b/packages/i18n/locales/no/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Start melding",
+   "codebase_has_to_stay_opensource": "Kodebasen må forbli åpen kildekode, uansett om den ble endret eller ikke",
+   "cannot_repackage_codebase": "Du kan ikke pakke om eller selge kodebasen",
+-  "acquire_license": "Skaff en kommersiell lisens for å fjerne disse vilkårene ved å sende e-post",
+   "terms_summary": "Oppsummering av vilkår",
+   "open_env": "Åpne .env og godta vår lisens",
+   "env_changed": "Jeg har endret min .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Opprett hendelser på",
+   "missing_license": "Mangler Lisens",
+   "next_steps": "Neste Skritt",
+-  "acquire_commercial_license": "Skaff en kommersiell lisens",
+   "the_infrastructure_plan": "Infrastruktur-planen er bruksbasert og har oppstartsvennlige rabatter.",
+   "prisma_studio_tip": "Opprett en konto via Prisma Studio",
+   "prisma_studio_tip_description": "Lær hvordan du setter opp din første bruker",
+diff --git a/packages/i18n/locales/pl/common.json b/packages/i18n/locales/pl/common.json
+index b15b189..880ac9b 100644
+--- a/packages/i18n/locales/pl/common.json
++++ b/packages/i18n/locales/pl/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Rozpocznij wiadomość",
+   "codebase_has_to_stay_opensource": "Baza kodu musi pozostać otwartym źródłem, niezależnie od tego, czy została zmodyfikowana czy nie",
+   "cannot_repackage_codebase": "Nie możesz przepakować ani sprzedać tego projektu",
+-  "acquire_license": "Uzyskaj licencję komercyjną do usunięcia tych warunków poprzez wysłanie e-mail",
+   "terms_summary": "Podsumowanie warunków",
+   "open_env": "Otwórz plik .env i zaakceptuj naszą licencję",
+   "env_changed": "Zmieniłem mój plik .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Utwórz wydarzenia w",
+   "missing_license": "Brakująca licencja",
+   "next_steps": "Następne kroki",
+-  "acquire_commercial_license": "Uzyskaj licencję komercyjną",
+   "the_infrastructure_plan": "Plan infrastrukturalny opiera się na użytkowaniu i zawiera rabaty sprzyjające uruchomieniu.",
+   "prisma_studio_tip": "Utwórz konto przez Prisma Studio",
+   "prisma_studio_tip_description": "Dowiedz się, jak skonfigurować swojego pierwszego użytkownika",
+diff --git a/packages/i18n/locales/pt-BR/common.json b/packages/i18n/locales/pt-BR/common.json
+index f5ad6fd..735479d 100644
+--- a/packages/i18n/locales/pt-BR/common.json
++++ b/packages/i18n/locales/pt-BR/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Inicie a Mensagem",
+   "codebase_has_to_stay_opensource": "Todo o código deverá permanecer em código aberto, quer seja modificado ou não",
+   "cannot_repackage_codebase": "Você não pode redistribuir ou vender o código",
+-  "acquire_license": "Envie um e-mail para adquirir uma licença comercial e remover estes termos",
+   "terms_summary": "Resumo dos termos",
+   "open_env": "Abra o arquivo .env e aceite a nossa licença",
+   "env_changed": "Alterei o meu arquivo .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Criar eventos em",
+   "missing_license": "Falta a licença",
+   "next_steps": "Próximos passos",
+-  "acquire_commercial_license": "Adquira uma licença comercial",
+   "the_infrastructure_plan": "O plano de infraestrutura é baseado no uso e tem descontos acessíveis para novos usuários.",
+   "prisma_studio_tip": "Crie uma conta com o Prisma Studio",
+   "prisma_studio_tip_description": "Aprenda a configurar seu primeiro usuário",
+diff --git a/packages/i18n/locales/pt/common.json b/packages/i18n/locales/pt/common.json
+index dc8e612..83fe957 100644
+--- a/packages/i18n/locales/pt/common.json
++++ b/packages/i18n/locales/pt/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Iniciar mensagem",
+   "codebase_has_to_stay_opensource": "Todo o código deverá permanecer em código aberto, quer seja modificado ou não",
+   "cannot_repackage_codebase": "Não pode redistribuir ou vender o código",
+-  "acquire_license": "Adquira uma licença comercial para remover estes termos através do envio de um email",
+   "terms_summary": "Resumo dos termos",
+   "open_env": "Abra o .env e concorde com a nossa licença",
+   "env_changed": "Alterei o meu .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Criar eventos em:",
+   "missing_license": "Licença em falta",
+   "next_steps": "Passos seguintes",
+-  "acquire_commercial_license": "Adquira uma licença comercial",
+   "the_infrastructure_plan": "O plano de infraestrutura é baseado em utilização e tem descontos para quem está a começar.",
+   "prisma_studio_tip": "Crie uma conta via Prisma Studio",
+   "prisma_studio_tip_description": "Saiba como configurar o seu primeiro utilizador",
+diff --git a/packages/i18n/locales/ro/common.json b/packages/i18n/locales/ro/common.json
+index baf32ff..f3ca58e 100644
+--- a/packages/i18n/locales/ro/common.json
++++ b/packages/i18n/locales/ro/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Începe Mesajul",
+   "codebase_has_to_stay_opensource": "Codul trebuie să rămână open source, indiferent dacă a fost modificat sau nu",
+   "cannot_repackage_codebase": "Nu puteți reface sau vinde baza de cod",
+-  "acquire_license": "Obțineți o licență comercială prin e-mail pentru a elimina acești termeni",
+   "terms_summary": "Rezumatul termenilor",
+   "open_env": "Deschideți .env și acceptați Licența noastră",
+   "env_changed": "Mi-am schimbat .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Creați evenimente în",
+   "missing_license": "Licență lipsă",
+   "next_steps": "Pașii următori",
+-  "acquire_commercial_license": "Obțineți o licență comercială",
+   "the_infrastructure_plan": "Planul de infrastructură este bazat pe utilizare și oferă reduceri atractive companiilor de tip start-up.",
+   "prisma_studio_tip": "Creați un cont prin intermediul Prisma Studio",
+   "prisma_studio_tip_description": "Aflați cum să configurați primul utilizator",
+diff --git a/packages/i18n/locales/ru/common.json b/packages/i18n/locales/ru/common.json
+index c0ffcc6..b3bec56 100644
+--- a/packages/i18n/locales/ru/common.json
++++ b/packages/i18n/locales/ru/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Начать сообщение",
+   "codebase_has_to_stay_opensource": "Код должен оставаться открытым исходным кодом, независимо от того, был ли он изменен или нет",
+   "cannot_repackage_codebase": "Вы не можете переупаковывать или продавать код",
+-  "acquire_license": "Получить коммерческую лицензию для удаления этих терминов по электронной почте",
+   "terms_summary": "Сводка терминов",
+   "open_env": "Откройте .env и примите нашу лицензию",
+   "env_changed": "Я изменил свой .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Создавать события в календаре:",
+   "missing_license": "Отсутствует лицензия",
+   "next_steps": "Следующие шаги",
+-  "acquire_commercial_license": "Приобрести коммерческую лицензию",
+   "the_infrastructure_plan": "Стоимость тарифного плана по развертыванию инфраструктуры зависит от вариантов использования; стартапам предоставляются скидки.",
+   "prisma_studio_tip": "Создать учетную запись через Prisma Studio",
+   "prisma_studio_tip_description": "Узнайте, как настроить первого пользователя",
+diff --git a/packages/i18n/locales/sk-SK/common.json b/packages/i18n/locales/sk-SK/common.json
+index d9a1b86..7201e88 100644
+--- a/packages/i18n/locales/sk-SK/common.json
++++ b/packages/i18n/locales/sk-SK/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Začať správu",
+   "codebase_has_to_stay_opensource": "Základ kódu musí zostať open source, či už bol upravený alebo nie",
+   "cannot_repackage_codebase": "Nemôžete prebalovať alebo predávať základ kódu",
+-  "acquire_license": "Získajte komerčnú licenciu na odstránenie týchto podmienok e-mailom",
+   "terms_summary": "Zhrnutie podmienok",
+   "open_env": "Otvorte .env a súhlaste s našou licenciou",
+   "env_changed": "Zmenil som svoj .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Vytvoriť udalosti na",
+   "missing_license": "Chýbajúca licencia",
+   "next_steps": "Ďalšie kroky",
+-  "acquire_commercial_license": "Získať komerčnú licenciu",
+   "the_infrastructure_plan": "Plán infraštruktúry je založený na používaní a má zľavy pre startupy.",
+   "prisma_studio_tip": "Vytvorte si účet cez Prisma Studio",
+   "prisma_studio_tip_description": "Naučte sa, ako nastaviť svojho prvého používateľa",
+diff --git a/packages/i18n/locales/sr/common.json b/packages/i18n/locales/sr/common.json
+index b3a533b..54c1786 100644
+--- a/packages/i18n/locales/sr/common.json
++++ b/packages/i18n/locales/sr/common.json
+@@ -169,7 +169,6 @@
+   "begin_message": "Početna poruka",
+   "codebase_has_to_stay_opensource": "Kodna baza mora ostati otvorena, bilo da je modifikovana ili ne",
+   "cannot_repackage_codebase": "Ne možete da prepakujete ili prodajete kodnu bazu",
+-  "acquire_license": "Steknite komercijalnu licencu da uklonite ove uslove slanjem e-pošte",
+   "terms_summary": "Pregled uslova",
+   "open_env": "Otvorite .env i pristanite na našu Licencu",
+   "env_changed": "Promenio/la sam moj .env",
+@@ -1421,7 +1420,6 @@
+   "create_events_on": "Kreiraj događaje na",
+   "missing_license": "Nedostaje Licenca",
+   "next_steps": "Sledeći koraci",
+-  "acquire_commercial_license": "Steknite komercijalnu licencu",
+   "the_infrastructure_plan": "Plan infrastrukture je na osnovu upotrebe i ima popuste pogdne za startup.",
+   "prisma_studio_tip": "Napravite nalog pomoću Prisma Studio",
+   "prisma_studio_tip_description": "Naučite kako da podesite svog prvog korisnika",
+diff --git a/packages/i18n/locales/sv/common.json b/packages/i18n/locales/sv/common.json
+index a9134a7..6194dda 100644
+--- a/packages/i18n/locales/sv/common.json
++++ b/packages/i18n/locales/sv/common.json
+@@ -157,7 +157,6 @@
+   "begin_message": "Startmeddelande",
+   "codebase_has_to_stay_opensource": "Kodebasen måste förbli öppen källkod, oavsett om den ändrades eller inte",
+   "cannot_repackage_codebase": "Du kan inte ompaketera eller sälja kodbasen",
+-  "acquire_license": "Skaffa en kommersiell licens för att ta bort dessa villkor genom att maila",
+   "terms_summary": "Sammanfattning av villkor",
+   "open_env": "Öppna .env och godkänn vår licens",
+   "env_changed": "Jag har ändrat min .env",
+@@ -1398,7 +1397,6 @@
+   "create_events_on": "Skapa händelser i",
+   "missing_license": "Saknar licens",
+   "next_steps": "Nästa steg",
+-  "acquire_commercial_license": "Skaffa en kommersiell licens",
+   "the_infrastructure_plan": "Infrastrukturplanen är användningsbaserad och har start-vänliga rabatter.",
+   "prisma_studio_tip": "Skapa ett konto via Prisma Studio",
+   "prisma_studio_tip_description": "Lär dig hur du konfigurerar din första användare",
+diff --git a/packages/i18n/locales/ta/common.json b/packages/i18n/locales/ta/common.json
+index cb43fb2..e442cbf 100644
+--- a/packages/i18n/locales/ta/common.json
++++ b/packages/i18n/locales/ta/common.json
+@@ -44,7 +44,6 @@
+   "pay_now": "இப்போது பணம் செலுத்த",
+   "codebase_has_to_stay_opensource": "கோட்பேஸ் மாற்றப்பட்டாலும் இல்லாவிட்டாலும் திறந்த மூலமாக இருக்க வேண்டும்",
+   "cannot_repackage_codebase": "நீங்கள் கோட்பேஸை மீண்டும் பேக்கேஜ் செய்யவோ விற்கவோ முடியாது",
+-  "acquire_license": "மின்னஞ்சல்மூலம் இந்த விதிமுறைகளை அகற்ற வணிக உரிமத்தைப் பெறவும்",
+   "terms_summary": "விதிமுறைகளின் சுருக்கம்",
+   "open_env": ".env ஐத் திறந்து எங்கள் உரிமத்தை ஏற்கவும்",
+   "env_changed": "நான் என் .env ஐ மாற்றிவிட்டேன்",
+diff --git a/packages/i18n/locales/tr/common.json b/packages/i18n/locales/tr/common.json
+index 8048541..fe6f9af 100644
+--- a/packages/i18n/locales/tr/common.json
++++ b/packages/i18n/locales/tr/common.json
+@@ -157,7 +157,6 @@
+   "begin_message": "Başlangıç Mesajı",
+   "codebase_has_to_stay_opensource": "Kod temeli, değiştirilmiş olsun ya da olmasın açık kaynak olarak kalmalıdır",
+   "cannot_repackage_codebase": "Kod temelini yeniden paketleyemez veya satamazsınız",
+-  "acquire_license": "E-posta göndererek bu şartları kaldırmak için ticari bir lisans edinin",
+   "terms_summary": "Koşulların özeti",
+   "open_env": ".env dosyasını açın ve lisansımızı kabul edin",
+   "env_changed": ".env dosyamı değiştirdim",
+@@ -1398,7 +1397,6 @@
+   "create_events_on": "Şurada etkinlik oluşturun:",
+   "missing_license": "Eksik lisans",
+   "next_steps": "Sonraki adımlar",
+-  "acquire_commercial_license": "Ticari bir lisans edinin",
+   "the_infrastructure_plan": "Altyapı planı kullanıma dayalıdır ve yeni başlayanlar için uygun indirimlere sahiptir.",
+   "prisma_studio_tip": "Prisma Studio aracılığıyla bir hesap oluşturun",
+   "prisma_studio_tip_description": "İlk kullanıcınız için nasıl ayar yapacağınızı öğrenin",
+diff --git a/packages/i18n/locales/uk/common.json b/packages/i18n/locales/uk/common.json
+index 73e5514..3264a19 100644
+--- a/packages/i18n/locales/uk/common.json
++++ b/packages/i18n/locales/uk/common.json
+@@ -157,7 +157,6 @@
+   "begin_message": "Початкове повідомлення",
+   "codebase_has_to_stay_opensource": "База коду має залишатися відкритою незалежно від внесення змін",
+   "cannot_repackage_codebase": "Перепаковувати або продавати базу коду заборонено",
+-  "acquire_license": "Щоб отримати комерційну ліцензію та прибрати ці умови, надішліть електронний лист на адресу",
+   "terms_summary": "Зведені умови",
+   "open_env": "Відкрийте .env і погодьтеся з нашою ліцензією",
+   "env_changed": "Я змінив(-ла) свій файл .env",
+@@ -1398,7 +1397,6 @@
+   "create_events_on": "Створюйте заходи в календарі",
+   "missing_license": "Відсутня ліцензія",
+   "next_steps": "Наступні кроки",
+-  "acquire_commercial_license": "Отримати комерційну ліцензію",
+   "the_infrastructure_plan": "Інфраструктурний план базується на використанні та надає знижки для стартапів.",
+   "prisma_studio_tip": "Створіть обліковий запис через Prisma Studio",
+   "prisma_studio_tip_description": "Дізнайтеся, як налаштувати першого користувача",
+diff --git a/packages/i18n/locales/vi/common.json b/packages/i18n/locales/vi/common.json
+index 98defb9..3d730c4 100644
+--- a/packages/i18n/locales/vi/common.json
++++ b/packages/i18n/locales/vi/common.json
+@@ -157,7 +157,6 @@
+   "begin_message": "Tin nhắn bắt đầu",
+   "codebase_has_to_stay_opensource": "Codebase phải duy trì nguồn mở, cho dù nó đã được sửa đổi hay không",
+   "cannot_repackage_codebase": "Bạn không thể đóng gói lại hoặc bán codebase",
+-  "acquire_license": "Xin giấy phép thương mại để xóa các điều khoản này bằng cách gửi email",
+   "terms_summary": "Tóm tắt các điều khoản",
+   "open_env": "Mở .env và đồng ý với giấy phép của chúng tôi",
+   "env_changed": "Tôi đã thay đổi .env của mình",
+@@ -1398,7 +1397,6 @@
+   "create_events_on": "Tạo sự kiện trên",
+   "missing_license": "Thiếu giấy phép",
+   "next_steps": "Các bước tiếp theo",
+-  "acquire_commercial_license": "Lấy giấy phép thương mại",
+   "the_infrastructure_plan": "Gói cơ sở hạ tầng dựa trên mức sử dụng và có chiết khấu thân thiện với startup.",
+   "prisma_studio_tip": "Tạo tài khoản qua Prisma Studio",
+   "prisma_studio_tip_description": "Tìm hiểu cách thiết lập người dùng đầu tiên của bạn",
+diff --git a/packages/i18n/locales/zh-CN/common.json b/packages/i18n/locales/zh-CN/common.json
+index c16e51d..1d6dc2c 100644
+--- a/packages/i18n/locales/zh-CN/common.json
++++ b/packages/i18n/locales/zh-CN/common.json
+@@ -157,7 +157,6 @@
+   "begin_message": "开始消息",
+   "codebase_has_to_stay_opensource": "无论代码是否被修改，它必须保持开源",
+   "cannot_repackage_codebase": "您不能重新打包或是出售此代码",
+-  "acquire_license": "如需获取商业许可以免除这些条款限制，请邮件联系",
+   "terms_summary": "条款概要",
+   "open_env": "打开 .env 并同意我们的许可协议",
+   "env_changed": "我已经更改了我的 .env",
+@@ -1398,7 +1397,6 @@
+   "create_events_on": "活动创建于：",
+   "missing_license": "缺少许可证",
+   "next_steps": "后续步骤",
+-  "acquire_commercial_license": "获取商业许可证",
+   "the_infrastructure_plan": "基础设施计划是按用量计费的，并对初创公司有优惠。",
+   "prisma_studio_tip": "通过 Prisma Studio 创建账户",
+   "prisma_studio_tip_description": "学习如何设置您的第一个用户",
+diff --git a/packages/i18n/locales/zh-TW/common.json b/packages/i18n/locales/zh-TW/common.json
+index da3925b..3a5ec4e 100644
+--- a/packages/i18n/locales/zh-TW/common.json
++++ b/packages/i18n/locales/zh-TW/common.json
+@@ -157,7 +157,6 @@
+   "begin_message": "開始訊息",
+   "codebase_has_to_stay_opensource": "不管是否經過修改，程式碼得要維持開放原始碼",
+   "cannot_repackage_codebase": "不得重新打包，或販售此程式碼",
+-  "acquire_license": "取得商業授權，才可以移除這些透過電子郵件寄送的條款",
+   "terms_summary": "條款概要",
+   "open_env": "開啟 .env 並同意我們的授權條款",
+   "env_changed": "已經修改 .env",
+@@ -1398,7 +1397,6 @@
+   "create_events_on": "建立活動時間：",
+   "missing_license": "缺少授權",
+   "next_steps": "後續步驟",
+-  "acquire_commercial_license": "取得商業授權",
+   "the_infrastructure_plan": "基礎架構方案是根據使用量，並提供新創公司友善折扣。",
+   "prisma_studio_tip": "透過 Prisma Studio 建立帳號",
+   "prisma_studio_tip_description": "學習如何設定第一位使用者",

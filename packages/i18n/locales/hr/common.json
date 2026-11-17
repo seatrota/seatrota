@@ -84,7 +84,6 @@
   "begin_message": "Započnite poruku",
   "codebase_has_to_stay_opensource": "Izvorni kôd mora ostati otvoren, bez obzira da li je izmijenjen ili ne",
   "cannot_repackage_codebase": "Ne možete prepakirati ili prodati izvorni kôd",
-  "acquire_license": "Nabavite komercijalnu licencu za uklanjanje ovih uvjeta slanjem e-poruke",
   "terms_summary": "Pregled uvjeta",
   "open_env": "Otvorite .env i prihvatite našu licencu",
   "env_changed": "Promijenio/la sam moj .env",
