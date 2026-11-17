@@ -22,6 +22,7 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 SHA="$(git -C "$ROOT" rev-parse HEAD)"
 WORKDIR="${1:-$(mktemp -d)}"
+mkdir -p "$WORKDIR"
 FENCES="${QUICKSTART_FENCES:-sh}"
 DOC="$ROOT/${QUICKSTART_DOC:-docs/QUICKSTART.md}"
 BASE_URL="http://localhost:3000"
