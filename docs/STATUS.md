@@ -1,10 +1,10 @@
 # SeatRota build status
 
-SeatRota is a clean-room, AGPL-3.0 Teams add-on for Cal.diy, built on a thin fork of the MIT snapshot of `calcom/cal.diy@ae027bb70e694e2d2c44569f398d6cbcee0389b1`. Every milestone below was merged into `main` through its own pull request. The repository is private.
+SeatRota is a clean-room, AGPL-3.0 Teams add-on for Cal.diy, built on a thin fork of the MIT snapshot of `calcom/cal.diy@ae027bb70e694e2d2c44569f398d6cbcee0389b1`. Every milestone below was merged into `main` through its own pull request. Those pull requests, with their CI runs and review notes, are in the private build repository. Their numbers refer to that repository, and the merge commits listed here are all in this repository's `main` history.
 
 | Milestone | Pull request | Merge commit | Upstream diff | Clean-room result |
 | --- | --- | --- | --- | --- |
-| M0 / M0.1: MIT cleanup patches, whole-tree scan | #1 | `2b820ec` (see note) | patches 000-003 | pass; self-test pass |
+| M0 / M0.1: MIT cleanup patches, whole-tree scan | #1 | `2b820ec` | patches 000-003 | pass; self-test pass |
 | M1: teams core (membership, invites, first-host booking) | #2 | `7eb1cc4` | 368 lines (010-015) | pass; self-test pass |
 | M5: OIDC SSO (Keycloak e2e, enforce-SSO, group-to-role mapping, domain auto-join) | #3 | `da78009` | 276 lines (050-054) | pass; self-test pass |
 | M2: round-robin and collective scheduling | #5 | `43071d4` | 313 lines (020-023) | pass; self-test pass; jscpd against `getLuckyUser` and `RegularBookingService`: 0 clones at 40 and 25 tokens |
@@ -22,7 +22,6 @@ On every merged pull request, `scripts/cleanroom-check.sh` reported the followin
 
 Each pull request body has its own acceptance results and full script output.
 
-Note on #1: GitHub records its merge as `1fb3ea7`. That commit was rewritten, with the same tree and parents, as `2b820ec` to remove a personal email from its author field, with approval. `main` contains `2b820ec`.
 
 ## What exists now
 
