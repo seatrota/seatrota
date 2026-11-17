@@ -1,9 +1,9 @@
 diff --git a/apps/web/playwright/teams-sso.e2e.ts b/apps/web/playwright/teams-sso.e2e.ts
 new file mode 100644
-index 0000000..de13c68
+index 0000000..b35d959
 --- /dev/null
 +++ b/apps/web/playwright/teams-sso.e2e.ts
-@@ -0,0 +1,111 @@
+@@ -0,0 +1,113 @@
 +import { prisma } from "@calcom/prisma";
 +import { expect } from "@playwright/test";
 +import { importSeatRotaRealm, waitForKeycloak } from "@seatrota/teams-sso/e2e/keycloak-admin";
@@ -14,14 +14,16 @@ index 0000000..de13c68
 +const ssoEmail = "ada@sso.example.com";
 +const ssoDomain = "sso.example.com";
 +
-+async function removeSsoUser() {
++// Deleting users does not delete teams, so a retry would find the domain still claimed.
++async function removeSsoRows() {
++  await prisma.teamsTeam.deleteMany({ where: { ssoDomains: { some: { domain: ssoDomain } } } });
 +  await prisma.user.deleteMany({ where: { email: ssoEmail } });
 +}
 +
-+test.beforeEach(removeSsoUser);
++test.beforeEach(removeSsoRows);
 +
 +test.afterEach(async ({ users }) => {
-+  await removeSsoUser();
++  await removeSsoRows();
 +  await users.deleteAll();
 +});
 +
@@ -91,7 +93,7 @@ index 0000000..de13c68
 +  expect(membership.role).toBe("ADMIN");
 +
 +  // Owner turns on enforce-SSO for the verified domain.
-+  await page.context().clearCookies();
++  await users.logout();
 +  await owner.login();
 +  await page.goto(`/settings/teams/${slug}`);
 +  await expect(panel.getByTestId("team-sso-client-id")).toHaveValue(realm.clientId);

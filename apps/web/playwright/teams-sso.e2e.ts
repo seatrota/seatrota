@@ -8,14 +8,16 @@ const keycloakUrl = (process.env.KEYCLOAK_URL || "http://127.0.0.1:8080").replac
 const ssoEmail = "ada@sso.example.com";
 const ssoDomain = "sso.example.com";
 
-async function removeSsoUser() {
+// Deleting users does not delete teams, so a retry would find the domain still claimed.
+async function removeSsoRows() {
+  await prisma.teamsTeam.deleteMany({ where: { ssoDomains: { some: { domain: ssoDomain } } } });
   await prisma.user.deleteMany({ where: { email: ssoEmail } });
 }
 
-test.beforeEach(removeSsoUser);
+test.beforeEach(removeSsoRows);
 
 test.afterEach(async ({ users }) => {
-  await removeSsoUser();
+  await removeSsoRows();
   await users.deleteAll();
 });
 
@@ -85,7 +87,7 @@ test("a person signs in through Keycloak, joins with the mapped role, and enforc
   expect(membership.role).toBe("ADMIN");
 
   // Owner turns on enforce-SSO for the verified domain.
-  await page.context().clearCookies();
+  await users.logout();
   await owner.login();
   await page.goto(`/settings/teams/${slug}`);
   await expect(panel.getByTestId("team-sso-client-id")).toHaveValue(realm.clientId);
