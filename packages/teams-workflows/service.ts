@@ -261,7 +261,10 @@ async function recipientsFor(
     select: { hostUserIds: true, assignedUserId: true },
     orderBy: { id: "desc" },
   });
-  const hostIds = assignment ? [...new Set([assignment.assignedUserId, ...assignment.hostUserIds])] : [];
+  // Arrays only: the upstream tRPC build compiles this file without downlevel iteration.
+  const hostIds = assignment
+    ? [assignment.assignedUserId, ...assignment.hostUserIds].filter((id, index, all) => all.indexOf(id) === index)
+    : [];
   const hosts = hostIds.length
     ? await prisma.user.findMany({
         where: { id: { in: hostIds } },

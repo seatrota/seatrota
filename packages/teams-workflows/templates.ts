@@ -23,22 +23,27 @@ export type TemplateValues = Record<TemplateVariable, string>;
 
 const PLACEHOLDER = /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;
 
+// Plain loops and arrays: the upstream tRPC build compiles this file without downlevel iteration.
 export function templateVariablesIn(template: string): string[] {
-  const found = new Set<string>();
-  for (const match of template.matchAll(PLACEHOLDER)) {
-    if (match[1]) found.add(match[1]);
+  const found: string[] = [];
+  const pattern = new RegExp(PLACEHOLDER.source, "g");
+  let match: RegExpExecArray | null = pattern.exec(template);
+  while (match !== null) {
+    const name = match[1];
+    if (name && !found.includes(name)) found.push(name);
+    match = pattern.exec(template);
   }
-  return [...found];
+  return found;
 }
 
 export function unknownTemplateVariables(template: string): string[] {
-  const known = new Set<string>(TEMPLATE_VARIABLES);
-  return templateVariablesIn(template).filter((name) => !known.has(name));
+  const known: readonly string[] = TEMPLATE_VARIABLES;
+  return templateVariablesIn(template).filter((name) => !known.includes(name));
 }
 
 export function renderTemplate(template: string, values: TemplateValues): string {
   return template.replace(PLACEHOLDER, (whole, name: string) =>
-    Object.hasOwn(values, name) ? values[name as TemplateVariable] : whole
+    Object.prototype.hasOwnProperty.call(values, name) ? values[name as TemplateVariable] : whole
   );
 }
 
