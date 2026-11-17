@@ -9,9 +9,10 @@
 # <upstream-ref> is a commit SHA, branch or tag in calcom/cal.diy.
 #
 # What it does, all inside a throwaway scratch repository:
-#   1. Snapshot check: the recorded upstream commit (UPSTREAM.md) has the same
-#      tree as this repository's root snapshot commit.
-#   2. Queue check: patches/*.patch, applied in C-locale order to the snapshot,
+#   1. Snapshot check: the import commit for the recorded upstream SHA
+#      (UPSTREAM.md) has the same tree as that upstream commit.
+#   2. Queue check: patches/*.patch, applied in C-locale order to the recorded
+#      upstream commit,
 #      reproduce every non-owned file on the current branch byte for byte.
 #      Owned paths are listed in scripts/seatrota-owned.txt.
 #   3. Replay: the same patches are applied to <upstream-ref>. A patch that does
@@ -75,7 +76,8 @@ done
 CURRENT="$(sed -n 's/^- SHA: //p' UPSTREAM.md | head -n 1)"
 SOURCE="$(sed -n 's/^- Source: //p' UPSTREAM.md | head -n 1)"
 [[ -n "$CURRENT" && -n "$SOURCE" ]] || { echo "upstream-sync: UPSTREAM.md is missing SHA or Source" >&2; exit 1; }
-SNAPSHOT="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+# The squashed import commit, if this branch still has one ("snapshot: calcom/cal.diy@<sha>").
+SNAPSHOT="$(git log --format=%H --grep="^snapshot: calcom/cal.diy@$CURRENT" HEAD | tail -n 1)"
 HEAD_SHA="$(git rev-parse HEAD)"
 
 OWNED=()
@@ -147,18 +149,21 @@ write_report() {
   } >"$REPORT"
 }
 
-# 1. Snapshot check.
-if sgit diff --quiet "$CURRENT^{tree}" "$SNAPSHOT^{tree}"; then
-  note "snapshot check: root commit ${SNAPSHOT:0:12} has the tree of upstream ${CURRENT:0:12}"
+# 1. Snapshot check (informational): the import commit should hold the upstream tree.
+if [[ -z "$SNAPSHOT" ]]; then
+  note "snapshot check: no import commit for ${CURRENT:0:12} on this branch; skipped"
+elif sgit diff --quiet "$CURRENT^{tree}" "$SNAPSHOT^{tree}"; then
+  note "snapshot check: import commit ${SNAPSHOT:0:12} has the tree of upstream ${CURRENT:0:12}"
 else
-  note "snapshot check: root commit differs from upstream ${CURRENT:0:12} in $(sgit diff --name-only "$CURRENT" "$SNAPSHOT" | wc -l | tr -d ' ') files"
+  note "snapshot check: import commit ${SNAPSHOT:0:12} differs from upstream ${CURRENT:0:12} in $(sgit diff --name-only "$CURRENT" "$SNAPSHOT" | wc -l | tr -d ' ') files"
+  sgit diff --name-status "$CURRENT" "$SNAPSHOT" | head -n 20 | sed 's/^/upstream-sync:   /'
 fi
 
-# 2. Queue check on the snapshot.
-sgit checkout -q --detach "$SNAPSHOT"
+# 2. Queue check: the recorded upstream commit plus the queue must reproduce this branch.
+sgit checkout -q --detach "$CURRENT"
 for patch in "${PATCHES[@]}"; do
   if ! sgit apply --index --whitespace=nowarn "$ROOT/$patch"; then
-    note "queue check: FAILED, $patch does not apply to the snapshot"
+    note "queue check: FAILED, $patch does not apply to upstream ${CURRENT:0:12}"
     write_report
     exit 2
   fi
