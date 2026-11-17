@@ -72,7 +72,8 @@ test("the insights panel shows the right counts for seeded team bookings", async
         startTime: start,
         endTime: new Date(start.getTime() + 30 * 60 * 1000),
         status: seed.status ?? "ACCEPTED",
-        userId: seed.host,
+        // The snapshot's idempotency-key extension reads the host from user.connect.
+        user: { connect: { id: seed.host } },
         noShowHost: seed.hostNoShow ?? false,
         attendees: {
           create: {

@@ -1,9 +1,9 @@
 diff --git a/apps/web/playwright/teams-insights.e2e.ts b/apps/web/playwright/teams-insights.e2e.ts
 new file mode 100644
-index 0000000..57d85de
+index 0000000..e5a45cd
 --- /dev/null
 +++ b/apps/web/playwright/teams-insights.e2e.ts
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,127 @@
 +import { randomUUID } from "node:crypto";
 +
 +import { prisma } from "@calcom/prisma";
@@ -78,7 +78,8 @@ index 0000000..57d85de
 +        startTime: start,
 +        endTime: new Date(start.getTime() + 30 * 60 * 1000),
 +        status: seed.status ?? "ACCEPTED",
-+        userId: seed.host,
++        // The snapshot's idempotency-key extension reads the host from user.connect.
++        user: { connect: { id: seed.host } },
 +        noShowHost: seed.hostNoShow ?? false,
 +        attendees: {
 +          create: {
