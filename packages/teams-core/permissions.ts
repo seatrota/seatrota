@@ -25,7 +25,8 @@ export type TeamsProcedure =
   | "ssoRead"
   | "ssoManage"
   | "workflowRead"
-  | "workflowManage";
+  | "workflowManage"
+  | "insightsRead";
 
 export type TeamsAccessNeed = "public" | "authenticated" | "read" | "manage" | "invitee";
 
@@ -48,6 +49,7 @@ export const PROCEDURE_ACCESS: Record<TeamsProcedure, TeamsAccessNeed> = {
   ssoManage: "manage",
   workflowRead: "read",
   workflowManage: "manage",
+  insightsRead: "read",
 };
 
 export class TeamsAccessError extends Error {

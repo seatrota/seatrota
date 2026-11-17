@@ -1,0 +1,12 @@
+diff --git a/apps/web/next.config.ts b/apps/web/next.config.ts
+index 5396d67..596d3da 100644
+--- a/apps/web/next.config.ts
++++ b/apps/web/next.config.ts
+@@ -251,6 +251,7 @@ const nextConfig = (phase: string): NextConfig => {
+       "@seatrota/teams-booking",
+       "@seatrota/teams-scheduling",
+       "@seatrota/teams-workflows",
++      "@seatrota/teams-insights",
+     ],
+     modularizeImports: {
+       lodash: {

@@ -5,6 +5,7 @@ import authedProcedure from "@calcom/trpc/server/procedures/authedProcedure";
 import publicProcedure from "@calcom/trpc/server/procedures/publicProcedure";
 import { mergeRouters, router } from "@calcom/trpc/server/trpc";
 import { teamsSsoRouter } from "@seatrota/teams-sso/router";
+import { teamsInsightsRouter } from "@seatrota/teams-insights/router";
 import { teamsWorkflowsRouter } from "@seatrota/teams-workflows/router";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -149,4 +150,4 @@ const teamsCoreRouter = router({
     .mutation(({ input }) => run(() => service.bookTeamEvent(input))),
 });
 
-export const teamsRouter = mergeRouters(teamsCoreRouter, teamsSsoRouter, teamsWorkflowsRouter);
+export const teamsRouter = mergeRouters(teamsCoreRouter, teamsSsoRouter, teamsWorkflowsRouter, teamsInsightsRouter);
