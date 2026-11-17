@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# Scan SeatRota changes against the Cal.diy snapshot for clean-room violations.
+# Scan SeatRota changes against the Cal.diy snapshot for clean-room violations,
+# then scan the whole tree for the same markers. Exceptions are documented
+# in the whole-tree section below.
 # Usage: scripts/cleanroom-check.sh [base-ref]
+# Requires ripgrep (rg) on PATH.
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
@@ -31,21 +34,15 @@ SCAN_PATTERNS=(
   'checkLicense'
 )
 
-# This script and the self-test (which plants a fixture containing the patterns)
-# are excluded so the pattern list and the planted import string are not self-hits.
-EXCLUDE_PATHS=(
-  'scripts/cleanroom-check.sh'
-  'scripts/cleanroom-selftest.sh'
-)
-
+# Diff-scan exclusions. The scanner and the self-test contain the markers on
+# purpose. patches/ records the markers it removes; the whole-tree section
+# documents that exception and applies it to this diff scan as well.
 is_excluded() {
-  local path="$1"
-  local excluded
-  for excluded in "${EXCLUDE_PATHS[@]}"; do
-    if [[ "$path" == "$excluded" ]]; then
+  case "$1" in
+    scripts/cleanroom-check.sh | scripts/cleanroom-selftest.sh | patches/*)
       return 0
-    fi
-  done
+      ;;
+  esac
   return 1
 }
 
@@ -298,6 +295,162 @@ else
       note_failure "license-checker --onlyAllow rejected added dependencies"
     fi
   fi
+fi
+
+# ---------------------------------------------------------------------------
+# Whole-tree scan
+#
+#   rg --hidden --no-ignore -g '!.git' -l \
+#     -e '/ee/' -e 'Commercial License' -e '@calcom/ee' -e 'features/ee' \
+#     -e 'packages/ee' -e 'LicenseRef-' -e 'licenseKey' -e 'checkLicense' \
+#     -e '(?i)commercial licen'
+#
+# Documented exceptions. A hit in any other path fails.
+#
+# 1. scripts/cleanroom-check.sh and scripts/cleanroom-selftest.sh
+#    The scanner and the self-test contain the markers on purpose, including
+#    the fixture text the self-test plants.
+# 2. .yarn/releases/
+#    Vendored package-manager binary, not source.
+# 3. Uncommitted install and build outputs. Do not commit these.
+#    node_modules/, dist/, build/, .next/, out/, coverage/, .turbo/,
+#    *.tsbuildinfo, packages/prisma/client/, packages/prisma/generated/,
+#    packages/prisma/zod/, packages/prisma/enums/, apps/api/v2/generated/,
+#    packages/kysely/types.ts (generated; see packages/kysely/.gitignore),
+#    packages/trpc/types/ (generated declarations; see packages/trpc/.gitignore).
+# 4. patches/
+#    The queue records the markers it removes. patches/*.md names the same
+#    paths. scripts/upstream-sync.sh re-applies only *.patch and *.diff,
+#    in lexicographic order.
+# 5. MIT snapshot deployment stub, and only for the markers licenseKey and
+#    checkLicense. These paths are unchanged Cal.diy MIT files: a licenseKey
+#    column and checkLicense() stubs that always allow the deployment. They
+#    are not an enterprise source tree. Any other marker in the same file
+#    still fails. A new file that introduces either marker still fails.
+#      apps/api/v2/README.md
+#      apps/api/v2/src/config/app.ts
+#      apps/api/v2/src/config/type.ts
+#      apps/api/v2/src/modules/deployments/deployments.service.ts
+#      apps/web/server/lib/setup/getServerSideProps.tsx
+#      packages/features/auth/__mocks__/getServerSession.mocks.ts
+#      packages/features/auth/lib/getServerSession.ts
+#      packages/features/deployment/repositories/DeploymentRepository.ts
+#      packages/prisma/migrations/20230125182832_add_deployment/migration.sql
+#      packages/prisma/schema.prisma
+#      packages/trpc/server/routers/viewer/deploymentSetup/update.handler.ts
+#      packages/trpc/server/routers/viewer/deploymentSetup/update.schema.ts
+#      packages/trpc/server/routers/viewer/deploymentSetup/validateLicense.handler.ts
+#      packages/trpc/server/routers/viewer/deploymentSetup/validateLicense.schema.ts
+# ---------------------------------------------------------------------------
+
+is_whole_tree_path_exception() {
+  case "$1" in
+    scripts/cleanroom-check.sh | scripts/cleanroom-selftest.sh) return 0 ;;
+    .yarn/releases/*) return 0 ;;
+    patches/*) return 0 ;;
+    node_modules/* | */node_modules/*) return 0 ;;
+    dist/* | */dist/*) return 0 ;;
+    build/* | */build/*) return 0 ;;
+    .next/* | */.next/*) return 0 ;;
+    out/* | */out/*) return 0 ;;
+    coverage/* | */coverage/*) return 0 ;;
+    .turbo/* | */.turbo/*) return 0 ;;
+    *.tsbuildinfo) return 0 ;;
+    packages/prisma/client/* | packages/prisma/generated/* | packages/prisma/zod/* | packages/prisma/enums/* | apps/api/v2/generated/* | packages/kysely/types.ts | packages/trpc/types/*) return 0 ;;
+  esac
+  return 1
+}
+
+MIT_DEPLOYMENT_STUB_PATHS=(
+  apps/api/v2/README.md
+  apps/api/v2/src/config/app.ts
+  apps/api/v2/src/config/type.ts
+  apps/api/v2/src/modules/deployments/deployments.service.ts
+  apps/web/server/lib/setup/getServerSideProps.tsx
+  packages/features/auth/__mocks__/getServerSession.mocks.ts
+  packages/features/auth/lib/getServerSession.ts
+  packages/features/deployment/repositories/DeploymentRepository.ts
+  packages/prisma/migrations/20230125182832_add_deployment/migration.sql
+  packages/prisma/schema.prisma
+  packages/trpc/server/routers/viewer/deploymentSetup/update.handler.ts
+  packages/trpc/server/routers/viewer/deploymentSetup/update.schema.ts
+  packages/trpc/server/routers/viewer/deploymentSetup/validateLicense.handler.ts
+  packages/trpc/server/routers/viewer/deploymentSetup/validateLicense.schema.ts
+)
+
+is_mit_deployment_stub() {
+  local path="$1"
+  local allowed
+  for allowed in "${MIT_DEPLOYMENT_STUB_PATHS[@]}"; do
+    if [[ "$path" == "$allowed" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+if ! command -v rg >/dev/null 2>&1; then
+  note_failure "ripgrep (rg) is required for the whole-tree scan"
+else
+  TREE_LIST="$(mktemp)"
+  set +e
+  rg --hidden --no-ignore -g '!.git' -l \
+    -e '/ee/' \
+    -e 'Commercial License' \
+    -e '@calcom/ee' \
+    -e 'features/ee' \
+    -e 'packages/ee' \
+    -e 'LicenseRef-' \
+    -e 'licenseKey' \
+    -e 'checkLicense' \
+    -e '(?i)commercial licen' \
+    >"$TREE_LIST"
+  rg_status=$?
+  set -e
+  if [[ "$rg_status" -gt 1 ]]; then
+    note_failure "whole-tree rg failed (status ${rg_status})"
+  fi
+  tree_hits=0
+  tree_unexpected=0
+  while IFS= read -r file; do
+    [[ -z "$file" ]] && continue
+    tree_hits=$((tree_hits + 1))
+    if is_whole_tree_path_exception "$file"; then
+      continue
+    fi
+    if is_mit_deployment_stub "$file"; then
+      extra="$(rg -n \
+        -e '/ee/' \
+        -e 'Commercial License' \
+        -e '@calcom/ee' \
+        -e 'features/ee' \
+        -e 'packages/ee' \
+        -e 'LicenseRef-' \
+        -e '(?i)commercial licen' \
+        -- "$file" || true)"
+      if [[ -n "$extra" ]]; then
+        tree_unexpected=$((tree_unexpected + 1))
+        note_failure "whole-tree hit ${file} (marker other than the deployment stub)"
+        printf '%s\n' "$extra" >&2
+      fi
+      continue
+    fi
+    tree_unexpected=$((tree_unexpected + 1))
+    note_failure "whole-tree hit ${file}"
+    rg -n \
+      -e '/ee/' \
+      -e 'Commercial License' \
+      -e '@calcom/ee' \
+      -e 'features/ee' \
+      -e 'packages/ee' \
+      -e 'LicenseRef-' \
+      -e 'licenseKey' \
+      -e 'checkLicense' \
+      -e '(?i)commercial licen' \
+      -- "$file" >&2 || true
+  done <"$TREE_LIST"
+  rm -f "$TREE_LIST"
+  echo "cleanroom-check: whole-tree hits ${tree_hits}, unexpected ${tree_unexpected}"
 fi
 
 if [[ "$FAILURES" -ne 0 ]]; then

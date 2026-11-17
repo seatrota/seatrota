@@ -1,0 +1,89 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 064ffc3..c21a101 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -127,7 +127,6 @@ packages/lib/                # Shared utilities
+ - Database schema: `packages/prisma/schema.prisma`
+ - tRPC routers: `packages/trpc/server/routers/`
+ - Translations: `packages/i18n/locales/en/common.json`
+-- Workflow constants: `packages/features/ee/workflows/lib/constants.ts`
+ 
+ ## Tech Stack
+ 
+diff --git a/agents/knowledge-base.md b/agents/knowledge-base.md
+index ec97077..12d5f6c 100644
+--- a/agents/knowledge-base.md
++++ b/agents/knowledge-base.md
+@@ -88,7 +88,6 @@ To make persistent changes to API documentation, use NestJS decorators (`@ApiQue
+ ### Workflows vs Webhooks
+ 
+ Workflows and webhooks are two completely separate features in Cal.diy with different implementations and file structures:
+-- Workflow constants: `packages/features/ee/workflows/lib/constants.ts`
+ - NOT in the webhooks directory
+ 
+ When working on workflow triggers, do not reference or use webhook trigger implementations - they are distinct systems.
+diff --git a/agents/rules/patterns-trigger-dev.md b/agents/rules/patterns-trigger-dev.md
+index 6730dee..84036d0 100644
+--- a/agents/rules/patterns-trigger-dev.md
++++ b/agents/rules/patterns-trigger-dev.md
+@@ -237,4 +237,3 @@ export const myTask = schemaTask({
+ - Example taskers in the codebase:
+   - `packages/features/calendars/lib/tasker/` (standard pattern)
+   - `packages/features/webhooks/lib/tasker/` (webhook delivery)
+-  - `packages/features/ee/billing/service/proration/tasker/` (scheduled cron task)
+diff --git a/agents/rules/reference-file-locations.md b/agents/rules/reference-file-locations.md
+index e928737..97ceeed 100644
+--- a/agents/rules/reference-file-locations.md
++++ b/agents/rules/reference-file-locations.md
+@@ -26,7 +26,6 @@ tags: reference, navigation, file-locations
+ 
+ ## Features
+ 
+-- Workflow constants: `packages/features/ee/workflows/lib/constants.ts`
+ - Round-robin/host prioritization: `packages/features/bookings/lib/getLuckyUser.ts`
+ - Calendar cache: `packages/features/calendar-cache-sql`
+ - DataTable guide: `packages/features/data-table/GUIDE.md`
+diff --git a/apps/api/v2/test/mocks/calendars-service-mock.ts b/apps/api/v2/test/mocks/calendars-service-mock.ts
+index e6acfab..e5b58ad 100644
+--- a/apps/api/v2/test/mocks/calendars-service-mock.ts
++++ b/apps/api/v2/test/mocks/calendars-service-mock.ts
+@@ -1,5 +1,3 @@
+-import { CalendarsService } from "@/ee/calendars/services/calendars.service";
+-
+ import { ICS_CALENDAR_ID, ICS_CALENDAR_TYPE } from "@calcom/platform-constants";
+ 
+ export class CalendarsServiceMock {
+@@ -78,6 +76,6 @@ export class CalendarsServiceMock {
+         updatedAt: new Date(),
+         customCalendarReminder: 10,
+       },
+-    } satisfies Awaited<ReturnType<typeof CalendarsService.prototype.getCalendars>>;
++    };
+   }
+ }
+diff --git a/packages/features/data-table/GUIDE.md b/packages/features/data-table/GUIDE.md
+index 103961f..f9e595d 100644
+--- a/packages/features/data-table/GUIDE.md
++++ b/packages/features/data-table/GUIDE.md
+@@ -1153,7 +1153,7 @@ From `apps/web/modules/bookings/components/BookingsList.tsx` (hooks/providers im
+ 
+ ### Example 3: Team Member List with Infinite Scroll
+ 
+-From `apps/web/modules/ee/teams/components/MemberList.tsx`:
++A member list with infinite scroll:
+ 
+ ```tsx
+ <DataTableWrapper
+diff --git a/packages/features/trigger.config.ts b/packages/features/trigger.config.ts
+index f0792ae..3283198 100644
+--- a/packages/features/trigger.config.ts
++++ b/packages/features/trigger.config.ts
+@@ -19,8 +19,6 @@ export default defineConfig({
+   dirs: [
+     "./bookings/lib/tasker/trigger/notifications",
+     "./calendars/lib/tasker/trigger",
+-    "./ee/billing/service/proration/tasker/trigger",
+-    "./ee/organizations/lib/billing/tasker/trigger",
+     "./webhooks/lib/tasker/trigger",
+   ], // Customize based on your project structure
+ 

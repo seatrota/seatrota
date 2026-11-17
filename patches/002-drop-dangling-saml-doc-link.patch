@@ -1,0 +1,14 @@
+diff --git a/.env.example b/.env.example
+index 012c46b..4cc1103 100644
+--- a/.env.example
++++ b/.env.example
+@@ -30,8 +30,7 @@ NEXT_PUBLIC_WEBAPP_URL='http://localhost:3000'
+ NEXT_PUBLIC_WEBSITE_URL='http://localhost:3000'
+ NEXT_PUBLIC_EMBED_LIB_URL='http://localhost:3000/embed/embed.js'
+ 
+-# To enable SAML login, set both these variables
+-# @see https://github.com/calcom/cal.diy/tree/main/packages/features/ee#setting-up-saml-login
++# To enable SAML login, set both of these variables. Leave them empty to keep SAML off.
+ # SAML_DATABASE_URL="postgresql://postgres:@localhost:5450/cal-saml"
+ SAML_DATABASE_URL=
+ # SAML_ADMINS='pro@example.com'

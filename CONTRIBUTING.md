@@ -10,7 +10,7 @@ Work only from public documentation, observed product behaviour, and the SeatRot
 
 New TypeScript and JavaScript under `packages/teams-*` uses the header in `.github/spdx-header-agpl.txt` and is covered by `LICENSE-AGPL` (AGPL-3.0-only).
 
-`scripts/cleanroom-check.sh` must pass. It scans changes since the snapshot commit for enterprise imports and markers, rejects new files that carry a Cal.com copyright line, requires the AGPL SPDX header on new teams sources, runs jscpd (minimum 40 tokens) of `packages/teams-*` against the MIT tree, and runs `license-checker --onlyAllow` on dependencies this repository adds.
+`scripts/cleanroom-check.sh` must pass. It needs ripgrep (`rg`) on `PATH`. It scans changes since the snapshot commit for enterprise imports and markers, rejects new files that carry a Cal.com copyright line, requires the AGPL SPDX header on new teams sources, runs jscpd (minimum 40 tokens) of `packages/teams-*` against the MIT tree, and runs `license-checker --onlyAllow` on dependencies this repository adds. It also scans the whole tree. Unexpected hits fail. The exception list (the check scripts, `.yarn/releases`, uncommitted install and build outputs, the patch queue, and the unchanged MIT deployment stub) is documented in the whole-tree section of that script. `scripts/cleanroom-selftest.sh` must fail on a planted diff file and on a planted file outside the diff, then pass after both are removed.
 
 ## Provenance
 
@@ -172,13 +172,20 @@ export class HashedLinkService { ... }
 
 ## Building
 
-You can build the project with:
+`yarn build` needs an 8GB Node heap. `DATABASE_URL` must be empty or point at a running Postgres. If it is set and nothing is listening, the Prisma package build runs migrations and the build fails. When `DATABASE_URL` is set, `DATABASE_DIRECT_URL` must be empty or point at that same running Postgres. With both empty, migrations are skipped. `apps/web/next.config.ts` throws if `NEXTAUTH_SECRET`, `CALENDSO_ENCRYPTION_KEY`, or `NEXTAUTH_URL` is unset.
 
 ```bash
-yarn build
+NODE_OPTIONS=--max-old-space-size=8192 \
+  DATABASE_URL= DATABASE_DIRECT_URL= \
+  NEXTAUTH_URL=http://localhost:3000 \
+  NEXTAUTH_SECRET="$(openssl rand -base64 32)" \
+  CALENDSO_ENCRYPTION_KEY="$(openssl rand -base64 24)" \
+  yarn build
 ```
 
 Please ensure that you can make a full production build before pushing code.
+
+Local dev setup, including Postgres from `packages/prisma/docker-compose.yml`, is in the README. A boot smoke that starts that Postgres, runs `yarn dev`, waits for HTTP 200, and stops is `bash scripts/dev-boot-smoke.sh`. In CI it is the `workflow_dispatch` job `dev-boot-smoke`, because a full install plus the Next.js dev server is too heavy to run on every pull request.
 
 ## Testing
 
