@@ -1,0 +1,242 @@
+diff --git a/packages/prisma/schema.prisma b/packages/prisma/schema.prisma
+index 743ca56..316b721 100644
+--- a/packages/prisma/schema.prisma
++++ b/packages/prisma/schema.prisma
+@@ -287,6 +287,9 @@ model EventType {
+   requiresCancellationReason    CancellationReasonRequirement? @default(MANDATORY_HOST_ONLY)
+   enablePerHostLocations        Boolean                        @default(false)
+ 
++  teamsEventType    TeamsEventType?
++  teamsHostSchedule TeamsHost?      @relation("TeamsHostScheduleEvent")
++
+   createdAt DateTime? @default(now())
+   updatedAt DateTime? @updatedAt
+ 
+@@ -510,6 +513,9 @@ model User {
+ 
+   autoOptInFeatures Boolean @default(false)
+ 
++  teamsMemberships TeamsMembership[]
++  teamsHosts       TeamsHost[]
++
+   @@unique([email])
+   @@unique([email, username])
+   @@unique([username, organizationId])
+@@ -2849,3 +2855,86 @@ model AttributeSyncFieldMapping {
+   @@unique([integrationAttributeSyncId, attributeId])
+   @@index([integrationAttributeSyncId])
+ }
++
++enum TeamsMembershipRole {
++  OWNER
++  ADMIN
++  MEMBER
++}
++
++model TeamsTeam {
++  id          Int               @id @default(autoincrement())
++  name        String
++  slug        String            @unique
++  createdAt   DateTime          @default(now())
++  updatedAt   DateTime          @updatedAt
++  memberships TeamsMembership[]
++  invites     TeamsInvite[]
++  eventTypes  TeamsEventType[]
++
++  @@map("teams_team")
++}
++
++model TeamsMembership {
++  id        Int                 @id @default(autoincrement())
++  teamId    Int
++  userId    Int
++  role      TeamsMembershipRole
++  createdAt DateTime            @default(now())
++  team      TeamsTeam           @relation(fields: [teamId], references: [id], onDelete: Cascade)
++  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
++
++  @@unique([teamId, userId])
++  @@index([userId])
++  @@map("teams_membership")
++}
++
++model TeamsInvite {
++  id         Int                 @id @default(autoincrement())
++  teamId     Int
++  email      String
++  token      String              @unique
++  role       TeamsMembershipRole @default(MEMBER)
++  expiresAt  DateTime
++  acceptedAt DateTime?
++  createdAt  DateTime            @default(now())
++  team       TeamsTeam           @relation(fields: [teamId], references: [id], onDelete: Cascade)
++
++  @@index([teamId])
++  @@index([email])
++  @@map("teams_invite")
++}
++
++model TeamsEventType {
++  id          Int         @id @default(autoincrement())
++  teamId      Int
++  slug        String
++  title       String
++  description String?
++  length      Int
++  eventTypeId Int?        @unique
++  createdAt   DateTime    @default(now())
++  updatedAt   DateTime    @updatedAt
++  team        TeamsTeam   @relation(fields: [teamId], references: [id], onDelete: Cascade)
++  eventType   EventType?  @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
++  hosts       TeamsHost[]
++
++  @@unique([teamId, slug])
++  @@index([teamId])
++  @@map("teams_event_type")
++}
++
++model TeamsHost {
++  id                  Int            @id @default(autoincrement())
++  teamsEventTypeId    Int
++  userId              Int
++  scheduleEventTypeId Int            @unique
++  position            Int            @default(0)
++  teamsEventType      TeamsEventType @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
++  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
++  scheduleEventType   EventType      @relation("TeamsHostScheduleEvent", fields: [scheduleEventTypeId], references: [id], onDelete: Cascade)
++
++  @@unique([teamsEventTypeId, userId])
++  @@index([userId])
++  @@map("teams_host")
++}
+diff --git a/packages/prisma/migrations/20261117000000_teams_core/migration.sql b/packages/prisma/migrations/20261117000000_teams_core/migration.sql
+new file mode 100644
+index 0000000..5abfebb
+--- /dev/null
++++ b/packages/prisma/migrations/20261117000000_teams_core/migration.sql
+@@ -0,0 +1,125 @@
++-- CreateEnum
++CREATE TYPE "public"."TeamsMembershipRole" AS ENUM ('OWNER', 'ADMIN', 'MEMBER');
++
++-- CreateTable
++CREATE TABLE "public"."teams_team" (
++    "id" SERIAL NOT NULL,
++    "name" TEXT NOT NULL,
++    "slug" TEXT NOT NULL,
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    "updatedAt" TIMESTAMP(3) NOT NULL,
++
++    CONSTRAINT "teams_team_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateTable
++CREATE TABLE "public"."teams_membership" (
++    "id" SERIAL NOT NULL,
++    "teamId" INTEGER NOT NULL,
++    "userId" INTEGER NOT NULL,
++    "role" "public"."TeamsMembershipRole" NOT NULL,
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++
++    CONSTRAINT "teams_membership_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateTable
++CREATE TABLE "public"."teams_invite" (
++    "id" SERIAL NOT NULL,
++    "teamId" INTEGER NOT NULL,
++    "email" TEXT NOT NULL,
++    "token" TEXT NOT NULL,
++    "role" "public"."TeamsMembershipRole" NOT NULL DEFAULT 'MEMBER',
++    "expiresAt" TIMESTAMP(3) NOT NULL,
++    "acceptedAt" TIMESTAMP(3),
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++
++    CONSTRAINT "teams_invite_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateTable
++CREATE TABLE "public"."teams_event_type" (
++    "id" SERIAL NOT NULL,
++    "teamId" INTEGER NOT NULL,
++    "slug" TEXT NOT NULL,
++    "title" TEXT NOT NULL,
++    "description" TEXT,
++    "length" INTEGER NOT NULL,
++    "eventTypeId" INTEGER,
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    "updatedAt" TIMESTAMP(3) NOT NULL,
++
++    CONSTRAINT "teams_event_type_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateTable
++CREATE TABLE "public"."teams_host" (
++    "id" SERIAL NOT NULL,
++    "teamsEventTypeId" INTEGER NOT NULL,
++    "userId" INTEGER NOT NULL,
++    "scheduleEventTypeId" INTEGER NOT NULL,
++    "position" INTEGER NOT NULL DEFAULT 0,
++
++    CONSTRAINT "teams_host_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_team_slug_key" ON "public"."teams_team"("slug");
++
++-- CreateIndex
++CREATE INDEX "teams_membership_userId_idx" ON "public"."teams_membership"("userId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_membership_teamId_userId_key" ON "public"."teams_membership"("teamId", "userId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_invite_token_key" ON "public"."teams_invite"("token");
++
++-- CreateIndex
++CREATE INDEX "teams_invite_teamId_idx" ON "public"."teams_invite"("teamId");
++
++-- CreateIndex
++CREATE INDEX "teams_invite_email_idx" ON "public"."teams_invite"("email");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_event_type_eventTypeId_key" ON "public"."teams_event_type"("eventTypeId");
++
++-- CreateIndex
++CREATE INDEX "teams_event_type_teamId_idx" ON "public"."teams_event_type"("teamId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_event_type_teamId_slug_key" ON "public"."teams_event_type"("teamId", "slug");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_host_scheduleEventTypeId_key" ON "public"."teams_host"("scheduleEventTypeId");
++
++-- CreateIndex
++CREATE INDEX "teams_host_userId_idx" ON "public"."teams_host"("userId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_host_teamsEventTypeId_userId_key" ON "public"."teams_host"("teamsEventTypeId", "userId");
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_membership" ADD CONSTRAINT "teams_membership_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams_team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_membership" ADD CONSTRAINT "teams_membership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_invite" ADD CONSTRAINT "teams_invite_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams_team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_event_type" ADD CONSTRAINT "teams_event_type_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams_team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_event_type" ADD CONSTRAINT "teams_event_type_eventTypeId_fkey" FOREIGN KEY ("eventTypeId") REFERENCES "public"."EventType"("id") ON DELETE SET NULL ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_host" ADD CONSTRAINT "teams_host_teamsEventTypeId_fkey" FOREIGN KEY ("teamsEventTypeId") REFERENCES "public"."teams_event_type"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_host" ADD CONSTRAINT "teams_host_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_host" ADD CONSTRAINT "teams_host_scheduleEventTypeId_fkey" FOREIGN KEY ("scheduleEventTypeId") REFERENCES "public"."EventType"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++

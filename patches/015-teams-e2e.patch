@@ -1,0 +1,63 @@
+diff --git a/apps/web/playwright/teams-core.e2e.ts b/apps/web/playwright/teams-core.e2e.ts
+new file mode 100644
+index 0000000..622191d
+--- /dev/null
++++ b/apps/web/playwright/teams-core.e2e.ts
+@@ -0,0 +1,57 @@
++import { prisma } from "@calcom/prisma";
++import { expect } from "@playwright/test";
++
++import { test } from "./lib/fixtures";
++
++test.afterEach(async ({ users }) => {
++  await users.deleteAll();
++});
++
++test("create team, invite, accept, create a team event, and book it as a guest", async ({ page, users }) => {
++  const owner = await users.create({ name: "Team Owner" });
++  const invitee = await users.create({ name: "Team Member" });
++  const slug = `desk-${owner.id}`;
++
++  await owner.login();
++  await page.goto("/settings/teams");
++  await page.getByTestId("team-name").fill("Desk");
++  await page.getByTestId("team-slug").fill(slug);
++  await page.getByTestId("team-create").click();
++  await expect(page.getByTestId("team-open").filter({ hasText: "Desk" })).toBeVisible();
++
++  await page.goto(`/settings/teams/${slug}`);
++  await page.getByTestId("team-invite-email").fill(invitee.email);
++  await page.getByTestId("team-invite-submit").click();
++  await expect(page.getByText("Invite sent")).toBeVisible();
++
++  const invite = await prisma.teamsInvite.findFirstOrThrow({
++    where: { email: invitee.email },
++    orderBy: { id: "desc" },
++  });
++
++  await owner.logout();
++  await invitee.login();
++  await page.goto(`/teams/invite/${invite.token}`);
++  await page.getByTestId("team-accept-invite").click();
++  await expect(page.getByTestId("team-joined")).toContainText("You joined Desk");
++
++  await invitee.logout();
++  await owner.login();
++  await page.goto(`/settings/teams/${slug}`);
++  await page.getByTestId("team-event-title").fill("Intro");
++  await page.getByTestId("team-event-slug").fill("intro");
++  await page.getByTestId("team-event-length").fill("30");
++  await page.getByTestId("team-event-create").click();
++  await expect(page.getByTestId("team-event-link").filter({ hasText: "Intro" })).toBeVisible();
++
++  await owner.logout();
++  await page.goto(`/team/${slug}`);
++  await page.getByTestId("team-event-link").filter({ hasText: "Intro" }).click();
++  await page.getByTestId("team-slot-day").first().click();
++  await page.getByTestId("team-slot-time").first().click();
++  await page.getByTestId("team-book-name").fill("Guest Casey");
++  await page.getByTestId("team-book-email").fill(`guest-${owner.id}@example.com`);
++  await page.getByTestId("team-book-submit").click();
++  await page.waitForURL((url) => url.pathname.startsWith("/booking/"));
++  await expect(page.getByTestId("success-page")).toBeVisible();
++});

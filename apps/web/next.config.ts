@@ -247,6 +247,8 @@ const nextConfig = (phase: string): NextConfig => {
       "@calcom/prisma",
       "@calcom/trpc",
       "@coss/ui",
+      "@seatrota/teams-core",
+      "@seatrota/teams-booking",
     ],
     modularizeImports: {
       lodash: {
@@ -533,11 +535,6 @@ const nextConfig = (phase: string): NextConfig => {
         {
           source: "/settings",
           destination: "/settings/my-account/profile",
-          permanent: true,
-        },
-        {
-          source: "/settings/teams",
-          destination: "/teams",
           permanent: true,
         },
         {

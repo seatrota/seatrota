@@ -1,0 +1,25 @@
+diff --git a/apps/web/next.config.ts b/apps/web/next.config.ts
+index 133974f..cc07c3d 100644
+--- a/apps/web/next.config.ts
++++ b/apps/web/next.config.ts
+@@ -247,6 +247,8 @@ const nextConfig = (phase: string): NextConfig => {
+       "@calcom/prisma",
+       "@calcom/trpc",
+       "@coss/ui",
++      "@seatrota/teams-core",
++      "@seatrota/teams-booking",
+     ],
+     modularizeImports: {
+       lodash: {
+@@ -535,11 +537,6 @@ const nextConfig = (phase: string): NextConfig => {
+           destination: "/settings/my-account/profile",
+           permanent: true,
+         },
+-        {
+-          source: "/settings/teams",
+-          destination: "/teams",
+-          permanent: true,
+-        },
+         {
+           source: "/settings/admin",
+           destination: "/settings/admin/flags",

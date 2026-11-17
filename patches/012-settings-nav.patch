@@ -1,0 +1,49 @@
+diff --git a/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/SettingsLayoutAppDirClient.tsx b/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/SettingsLayoutAppDirClient.tsx
+index 6accd70..873296c 100644
+--- a/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/SettingsLayoutAppDirClient.tsx
++++ b/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/SettingsLayoutAppDirClient.tsx
+@@ -127,6 +127,11 @@ const getTabs = (
+         // { name: "embeds", href: "/v2/settings/developer/embeds" },
+       ],
+     },
++    {
++      name: "teams",
++      href: "/settings/teams",
++      icon: "users",
++    },
+     {
+       name: "organization",
+       href: "/settings/organizations",
+diff --git a/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/[slug]/page.tsx b/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/[slug]/page.tsx
+new file mode 100644
+index 0000000..fbb9d3a
+--- /dev/null
++++ b/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/[slug]/page.tsx
+@@ -0,0 +1,5 @@
++import TeamDetailPage from "@seatrota/teams-booking/settings/team-detail-page";
++
++export default function Page() {
++  return <TeamDetailPage />;
++}
+diff --git a/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/page.tsx b/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/page.tsx
+new file mode 100644
+index 0000000..a2f9d2d
+--- /dev/null
++++ b/apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/page.tsx
+@@ -0,0 +1,5 @@
++import TeamsSettingsPage from "@seatrota/teams-booking/settings/teams-page";
++
++export default function Page() {
++  return <TeamsSettingsPage />;
++}
+diff --git a/apps/web/app/(use-page-wrapper)/teams/invite/[token]/page.tsx b/apps/web/app/(use-page-wrapper)/teams/invite/[token]/page.tsx
+new file mode 100644
+index 0000000..f692634
+--- /dev/null
++++ b/apps/web/app/(use-page-wrapper)/teams/invite/[token]/page.tsx
+@@ -0,0 +1,5 @@
++import AcceptInvitePage from "@seatrota/teams-booking/settings/accept-invite-page";
++
++export default function Page() {
++  return <AcceptInvitePage />;
++}

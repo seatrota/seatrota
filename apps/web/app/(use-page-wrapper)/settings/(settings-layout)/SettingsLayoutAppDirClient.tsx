@@ -128,6 +128,11 @@ const getTabs = (
       ],
     },
     {
+      name: "teams",
+      href: "/settings/teams",
+      icon: "users",
+    },
+    {
       name: "organization",
       href: "/settings/organizations",
       children: [

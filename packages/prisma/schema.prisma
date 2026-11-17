@@ -287,6 +287,9 @@ model EventType {
   requiresCancellationReason    CancellationReasonRequirement? @default(MANDATORY_HOST_ONLY)
   enablePerHostLocations        Boolean                        @default(false)
 
+  teamsEventType    TeamsEventType?
+  teamsHostSchedule TeamsHost?      @relation("TeamsHostScheduleEvent")
+
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
@@ -509,6 +512,9 @@ model User {
   holidaySettings                UserHolidaySettings?
 
   autoOptInFeatures Boolean @default(false)
+
+  teamsMemberships TeamsMembership[]
+  teamsHosts       TeamsHost[]
 
   @@unique([email])
   @@unique([email, username])
@@ -2848,4 +2854,87 @@ model AttributeSyncFieldMapping {
 
   @@unique([integrationAttributeSyncId, attributeId])
   @@index([integrationAttributeSyncId])
+}
+
+enum TeamsMembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model TeamsTeam {
+  id          Int               @id @default(autoincrement())
+  name        String
+  slug        String            @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  memberships TeamsMembership[]
+  invites     TeamsInvite[]
+  eventTypes  TeamsEventType[]
+
+  @@map("teams_team")
+}
+
+model TeamsMembership {
+  id        Int                 @id @default(autoincrement())
+  teamId    Int
+  userId    Int
+  role      TeamsMembershipRole
+  createdAt DateTime            @default(now())
+  team      TeamsTeam           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@map("teams_membership")
+}
+
+model TeamsInvite {
+  id         Int                 @id @default(autoincrement())
+  teamId     Int
+  email      String
+  token      String              @unique
+  role       TeamsMembershipRole @default(MEMBER)
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime            @default(now())
+  team       TeamsTeam           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([email])
+  @@map("teams_invite")
+}
+
+model TeamsEventType {
+  id          Int         @id @default(autoincrement())
+  teamId      Int
+  slug        String
+  title       String
+  description String?
+  length      Int
+  eventTypeId Int?        @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  team        TeamsTeam   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  eventType   EventType?  @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
+  hosts       TeamsHost[]
+
+  @@unique([teamId, slug])
+  @@index([teamId])
+  @@map("teams_event_type")
+}
+
+model TeamsHost {
+  id                  Int            @id @default(autoincrement())
+  teamsEventTypeId    Int
+  userId              Int
+  scheduleEventTypeId Int            @unique
+  position            Int            @default(0)
+  teamsEventType      TeamsEventType @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduleEventType   EventType      @relation("TeamsHostScheduleEvent", fields: [scheduleEventTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([teamsEventTypeId, userId])
+  @@index([userId])
+  @@map("teams_host")
 }
