@@ -81,7 +81,7 @@ That builds `docker/Dockerfile` as `seatrota:local`. The first build takes 15-25
 
 1. Open <http://localhost:3000/auth/login>. When the database has no user, the login page redirects to `/auth/setup`.
 2. On **Administrator user**, enter a username, a full name of at least 3 characters, an email, and a password. The setup form checks the password in strict mode: more than 14 characters, an uppercase letter, a lowercase letter, and a digit.
-3. Choose **Next step**, then **Finish** on **Enable apps**. That step returns to `/`.
+3. Choose **Next**, then **Finish** on **Enable apps**. That step returns to `/`.
 4. Open <http://localhost:3000/settings/teams>. Enter a team name and a link. The link is a lowercase slug of letters, numbers, and hyphens (`^[a-z0-9]+(?:-[a-z0-9]+)*$`). Submit **Create team**. The signed-in user becomes the owner.
 5. Open the team. Under **Invite by email**, enter an email and submit **Send invite**. The message links to `/teams/invite/<token>` on `NEXT_PUBLIC_WEBAPP_URL`. The invite lasts 7 days. The invited person signs in with that email and opens the link. Without working `EMAIL_*` settings the send is logged and the invite row is still stored; the page lists the pending address.
 

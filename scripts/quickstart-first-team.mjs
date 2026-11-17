@@ -34,7 +34,8 @@ try {
   await form.locator('input[name="full_name"]').fill(admin.fullName);
   await form.locator('input[name="email_address"]').fill(admin.email);
   await form.locator('input[name="password"]').fill(admin.password);
-  await page.getByRole("button", { name: "Next step" }).click();
+  // The form's own submit button ("Next") creates the administrator and signs in.
+  await form.locator('button[type="submit"]').click();
   await page.getByRole("button", { name: "Finish" }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/setup"));
   step(`administrator created; setup finished at ${new URL(page.url()).pathname}`);
