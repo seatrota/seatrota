@@ -61,6 +61,7 @@ export interface TeamInsights {
   roundRobin: { eventTypeId: number; title: string; total: number; rows: DistributionRow[] }[];
 }
 
+// Arrays and Array.from only: the upstream tRPC build compiles this file without downlevel iteration.
 const CANCELLED = new Set(["CANCELLED", "REJECTED"]);
 
 export function isCancelled(status: string): boolean {
@@ -113,7 +114,8 @@ export function buildInsights(input: {
     }
     const organizer = members.get(booking.assignedUserId);
     if (organizer) count(organizer, booking);
-    for (const hostId of new Set([booking.assignedUserId, ...booking.hostUserIds])) {
+    const hostIds = [booking.assignedUserId, ...booking.hostUserIds].filter((id, index, all) => all.indexOf(id) === index);
+    for (const hostId of hostIds) {
       const host = members.get(hostId);
       if (host && !isCancelled(booking.status)) host.hosted += 1;
     }
@@ -131,8 +133,8 @@ export function buildInsights(input: {
         if (booking.eventTypeId !== eventType.id || isCancelled(booking.status)) continue;
         perHost.set(booking.assignedUserId, (perHost.get(booking.assignedUserId) ?? 0) + 1);
       }
-      const total = [...perHost.values()].reduce((sum, value) => sum + value, 0);
-      const rows = [...perHost.entries()]
+      const total = Array.from(perHost.values()).reduce((sum, value) => sum + value, 0);
+      const rows = Array.from(perHost.entries())
         .map(([userId, bookings]) => ({
           userId,
           name: names.get(userId) ?? `User ${userId}`,
@@ -145,8 +147,8 @@ export function buildInsights(input: {
 
   return {
     totals,
-    members: [...members.values()].sort((a, b) => b.bookings - a.bookings || a.userId - b.userId),
-    eventTypes: [...eventTypes.values()],
+    members: Array.from(members.values()).sort((a, b) => b.bookings - a.bookings || a.userId - b.userId),
+    eventTypes: Array.from(eventTypes.values()),
     roundRobin,
   };
 }
