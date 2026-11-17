@@ -134,7 +134,9 @@ jobs:
         run: yarn build
 
       - name: Install Playwright Chromium
-        run: yarn playwright install --with-deps chromium
+        # Playwright 1.57 has no --with-deps manifest for the Ubuntu 26.04 runner.
+        # The browser binary installs without that OS package step.
+        run: yarn playwright install chromium
 
       - name: Playwright teams-core e2e
         run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
