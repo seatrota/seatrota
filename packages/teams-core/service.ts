@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 SeatRota contributors
 
-import { prisma } from "@calcom/prisma";
+import { randomBytes } from "node:crypto";
 import { sendTeamInviteEmail } from "@calcom/emails/organization-email-service";
 import { getTranslation } from "@calcom/i18n/server";
 import { WEBAPP_URL } from "@calcom/lib/constants";
-import { randomBytes } from "node:crypto";
-
+import { prisma } from "@calcom/prisma";
+import {
+  type ConfirmedBooking,
+  candidateFromCalendar,
+  collectiveSlots,
+  type HostCalendar,
+  type HostPriority,
+  roundRobinSlots,
+} from "@seatrota/teams-scheduling";
 import {
   assertMembershipChange,
   assertTeamsAccess,
   isManagerRole,
-  TeamsRequestError,
   type TeamsProcedure,
+  TeamsRequestError,
   type TeamsRole,
 } from "./permissions";
-import { hostForSlot, unionHostSlots, type TeamSlot } from "./slots";
+import type { TeamSlot } from "./slots";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -151,10 +158,14 @@ export async function getTeam(input: { userId: number; slug: string }) {
       slug: eventType.slug,
       description: eventType.description,
       length: eventType.length,
+      schedulingType: eventType.schedulingType,
       hosts: eventType.hosts.map((host) => ({
         userId: host.user.id,
         name: host.user.name,
         email: host.user.email,
+        priority: host.priority,
+        weight: host.weight,
+        isFixed: host.isFixed,
       })),
     })),
   };
@@ -369,6 +380,66 @@ async function assertHostsAreMembers(teamId: number, hostUserIds: number[]) {
   return unique;
 }
 
+type HostPriorityName = "HIGH" | "MEDIUM" | "LOW";
+type SchedulingTypeName = "ROUND_ROBIN" | "COLLECTIVE";
+
+export type HostSetting = {
+  userId: number;
+  priority?: HostPriorityName;
+  weight?: number;
+  isFixed?: boolean;
+};
+
+function assertWeight(weight: number): number {
+  if (!Number.isInteger(weight) || weight < 0 || weight > 1000) {
+    throw new TeamsRequestError("BAD_REQUEST", "Weight must be between 0 and 1000");
+  }
+  return weight;
+}
+
+function assertPriority(priority: string | undefined): HostPriorityName {
+  if (priority === undefined || priority === "MEDIUM") {
+    return "MEDIUM";
+  }
+  if (priority === "HIGH" || priority === "LOW") {
+    return priority;
+  }
+  throw new TeamsRequestError("BAD_REQUEST", "Priority must be high, medium, or low");
+}
+
+function assertScheduling(value: string | undefined): SchedulingTypeName {
+  if (value === undefined || value === "ROUND_ROBIN") {
+    return "ROUND_ROBIN";
+  }
+  if (value === "COLLECTIVE") {
+    return "COLLECTIVE";
+  }
+  throw new TeamsRequestError("BAD_REQUEST", "Scheduling type must be round-robin or collective");
+}
+
+function priorityRank(priority: HostPriorityName): HostPriority {
+  if (priority === "HIGH") {
+    return "high";
+  }
+  if (priority === "LOW") {
+    return "low";
+  }
+  return "medium";
+}
+
+function hostPlans(hostUserIds: number[], hostSettings: HostSetting[] | undefined) {
+  const byId = new Map((hostSettings ?? []).map((setting) => [setting.userId, setting]));
+  return hostUserIds.map((userId) => {
+    const setting = byId.get(userId);
+    return {
+      userId,
+      priority: assertPriority(setting?.priority),
+      weight: assertWeight(setting?.weight ?? 100),
+      isFixed: setting?.isFixed ?? false,
+    };
+  });
+}
+
 export async function createTeamEventType(input: {
   actorId: number;
   slug: string;
@@ -377,6 +448,8 @@ export async function createTeamEventType(input: {
   description?: string | null;
   length: number;
   hostUserIds: number[];
+  schedulingType?: SchedulingTypeName;
+  hostSettings?: HostSetting[];
 }) {
   await guard("createEventType", input.actorId, input.slug);
   const team = await teamBySlug(input.slug);
@@ -404,6 +477,7 @@ export async function createTeamEventType(input: {
       locations: [{ type: "link", link: MEET_LINK }],
     },
   });
+  const plans = hostPlans(hostUserIds, input.hostSettings);
   const eventType = await prisma.teamsEventType.create({
     data: {
       teamId: team.id,
@@ -411,27 +485,31 @@ export async function createTeamEventType(input: {
       title,
       description,
       length,
+      schedulingType: assertScheduling(input.schedulingType),
       eventTypeId: canonical.id,
     },
   });
-  for (let position = 0; position < hostUserIds.length; position += 1) {
-    const hostUserId = hostUserIds[position];
-    if (hostUserId === undefined) {
+  for (let position = 0; position < plans.length; position += 1) {
+    const plan = plans[position];
+    if (plan === undefined) {
       continue;
     }
     const shadow = await createShadowEventType({
-      hostUserId,
+      hostUserId: plan.userId,
       title,
       description,
       length,
-      slug: `teams-${team.id}-${eventType.id}-host-${hostUserId}`,
+      slug: `teams-${team.id}-${eventType.id}-host-${plan.userId}`,
     });
     await prisma.teamsHost.create({
       data: {
         teamsEventTypeId: eventType.id,
-        userId: hostUserId,
+        userId: plan.userId,
         scheduleEventTypeId: shadow.id,
         position,
+        priority: plan.priority,
+        weight: plan.weight,
+        isFixed: plan.isFixed,
       },
     });
   }
@@ -446,6 +524,8 @@ export async function updateTeamEventType(input: {
   description?: string | null;
   length?: number;
   hostUserIds?: number[];
+  schedulingType?: SchedulingTypeName;
+  hostSettings?: HostSetting[];
 }) {
   await guard("updateEventType", input.actorId, input.slug);
   const team = await teamBySlug(input.slug);
@@ -457,11 +537,14 @@ export async function updateTeamEventType(input: {
     throw new TeamsRequestError("NOT_FOUND", "Event type not found");
   }
   const title = input.title?.trim() || eventType.title;
-  const description = input.description === undefined ? eventType.description : input.description?.trim() || null;
+  const description =
+    input.description === undefined ? eventType.description : input.description?.trim() || null;
   const length = input.length === undefined ? eventType.length : assertLength(input.length);
+  const schedulingType =
+    input.schedulingType === undefined ? eventType.schedulingType : assertScheduling(input.schedulingType);
   await prisma.teamsEventType.update({
     where: { id: eventType.id },
-    data: { title, description, length },
+    data: { title, description, length, schedulingType },
   });
   if (eventType.eventTypeId) {
     await prisma.eventType.update({
@@ -475,8 +558,10 @@ export async function updateTeamEventType(input: {
       data: { title, description, length },
     });
   }
-  if (input.hostUserIds) {
-    const hostUserIds = await assertHostsAreMembers(team.id, input.hostUserIds);
+  const nextHostIds = input.hostUserIds ?? input.hostSettings?.map((setting) => setting.userId);
+  if (nextHostIds) {
+    const hostUserIds = await assertHostsAreMembers(team.id, nextHostIds);
+    const plans = hostPlans(hostUserIds, input.hostSettings);
     const keep = new Set(hostUserIds);
     for (const host of eventType.hosts) {
       if (!keep.has(host.userId)) {
@@ -484,29 +569,40 @@ export async function updateTeamEventType(input: {
         await prisma.eventType.delete({ where: { id: host.scheduleEventTypeId } });
       }
     }
-    for (let position = 0; position < hostUserIds.length; position += 1) {
-      const hostUserId = hostUserIds[position];
-      if (hostUserId === undefined) {
+    for (let position = 0; position < plans.length; position += 1) {
+      const plan = plans[position];
+      if (plan === undefined) {
         continue;
       }
-      const existing = eventType.hosts.find((host) => host.userId === hostUserId);
+      const existing = eventType.hosts.find((host) => host.userId === plan.userId);
       if (existing) {
-        await prisma.teamsHost.update({ where: { id: existing.id }, data: { position } });
+        await prisma.teamsHost.update({
+          where: { id: existing.id },
+          data: {
+            position,
+            ...(input.hostSettings
+              ? { priority: plan.priority, weight: plan.weight, isFixed: plan.isFixed }
+              : {}),
+          },
+        });
         continue;
       }
       const shadow = await createShadowEventType({
-        hostUserId,
+        hostUserId: plan.userId,
         title,
         description,
         length,
-        slug: `teams-${team.id}-${eventType.id}-host-${hostUserId}`,
+        slug: `teams-${team.id}-${eventType.id}-host-${plan.userId}`,
       });
       await prisma.teamsHost.create({
         data: {
           teamsEventTypeId: eventType.id,
-          userId: hostUserId,
+          userId: plan.userId,
           scheduleEventTypeId: shadow.id,
           position,
+          priority: plan.priority,
+          weight: plan.weight,
+          isFixed: plan.isFixed,
         },
       });
     }
@@ -570,19 +666,20 @@ async function loadHosts(slug: string, eventSlug: string) {
   return { team, eventType };
 }
 
-export async function teamEventSlots(input: {
-  slug: string;
-  eventSlug: string;
-  startTime: string;
-  endTime: string;
-  timeZone: string;
-}): Promise<{ length: number; title: string; slots: Record<string, TeamSlot[]> }> {
-  assertTeamsAccess({ procedure: "slots", isAuthenticated: false, role: null });
-  const { eventType } = await loadHosts(input.slug, input.eventSlug);
+async function hostCalendars(
+  hosts: {
+    userId: number;
+    priority: "HIGH" | "MEDIUM" | "LOW";
+    weight: number;
+    isFixed: boolean;
+    scheduleEventTypeId: number;
+  }[],
+  input: { startTime: string; endTime: string; timeZone: string }
+): Promise<HostCalendar[]> {
   const { getAvailableSlotsService } = await import("@calcom/features/di/containers/AvailableSlots");
   const service = getAvailableSlotsService();
-  const groups = [];
-  for (const host of eventType.hosts) {
+  const calendars: HostCalendar[] = [];
+  for (const host of hosts) {
     const result = await service.getAvailableSlots({
       input: {
         startTime: input.startTime,
@@ -593,12 +690,77 @@ export async function teamEventSlots(input: {
         orgSlug: null,
       },
     });
-    groups.push({ userId: host.userId, slots: result.slots });
+    calendars.push({
+      userId: host.userId,
+      priority: priorityRank(host.priority),
+      weight: host.weight,
+      fixed: host.isFixed,
+      slots: result.slots,
+    });
   }
+  return calendars;
+}
+
+function offeredSlots(
+  calendars: readonly HostCalendar[],
+  schedulingType: SchedulingTypeName
+): Record<string, TeamSlot[]> {
+  const opened = schedulingType === "COLLECTIVE" ? collectiveSlots(calendars) : roundRobinSlots(calendars);
+  const slots: Record<string, TeamSlot[]> = {};
+  for (const [date, day] of Object.entries(opened)) {
+    const row = [];
+    for (const slot of day) {
+      const userId = slot.userIds[0];
+      if (userId === undefined) {
+        continue;
+      }
+      row.push({ time: slot.time, userId, userIds: slot.userIds });
+    }
+    if (row.length > 0) {
+      slots[date] = row;
+    }
+  }
+  return slots;
+}
+
+async function confirmedHistory(teamsEventTypeId: number): Promise<ConfirmedBooking[]> {
+  const rows = await prisma.teamsAssignment.findMany({
+    where: {
+      teamsEventTypeId,
+      supersededAt: null,
+      booking: { status: "ACCEPTED" },
+    },
+    select: {
+      assignedUserId: true,
+      booking: { select: { startTime: true } },
+    },
+  });
+  return rows.map((row) => ({
+    userId: row.assignedUserId,
+    bookedAt: row.booking.startTime.toISOString(),
+  }));
+}
+
+export async function teamEventSlots(input: {
+  slug: string;
+  eventSlug: string;
+  startTime: string;
+  endTime: string;
+  timeZone: string;
+}): Promise<{
+  length: number;
+  title: string;
+  schedulingType: SchedulingTypeName;
+  slots: Record<string, TeamSlot[]>;
+}> {
+  assertTeamsAccess({ procedure: "slots", isAuthenticated: false, role: null });
+  const { eventType } = await loadHosts(input.slug, input.eventSlug);
+  const calendars = await hostCalendars(eventType.hosts, input);
   return {
     length: eventType.length,
     title: eventType.title,
-    slots: unionHostSlots(groups),
+    schedulingType: eventType.schedulingType,
+    slots: offeredSlots(calendars, eventType.schedulingType),
   };
 }
 
@@ -626,18 +788,31 @@ export async function bookTeamEvent(input: {
   rangeStart.setUTCDate(rangeStart.getUTCDate() - 1);
   const rangeEnd = new Date(startDate);
   rangeEnd.setUTCDate(rangeEnd.getUTCDate() + 1);
-  const available = await teamEventSlots({
-    slug: input.slug,
-    eventSlug: input.eventSlug,
+  const time = startDate.toISOString();
+  const calendars = await hostCalendars(eventType.hosts, {
     startTime: rangeStart.toISOString(),
     endTime: rangeEnd.toISOString(),
     timeZone: input.timeZone,
   });
-  const hostUserId = hostForSlot(available.slots, startDate.toISOString());
-  if (!hostUserId) {
+  const opened = offeredSlots(calendars, eventType.schedulingType);
+  const offered = Object.values(opened).some((day) => day.some((slot) => slot.time === time));
+  if (!offered) {
     throw new TeamsRequestError("BAD_REQUEST", "That time is not available");
   }
-  const host = eventType.hosts.find((row) => row.userId === hostUserId);
+  const mode = eventType.schedulingType === "COLLECTIVE" ? "collective" : "round-robin";
+  const { getBookingEventHandlerService } = await import(
+    "@calcom/features/bookings/di/BookingEventHandlerService.container"
+  );
+  const selection = getBookingEventHandlerService().beforeHostSelection({
+    mode,
+    time,
+    hosts: calendars.map((host) => candidateFromCalendar(host)),
+    history: await confirmedHistory(eventType.id),
+  });
+  if (!selection) {
+    throw new TeamsRequestError("BAD_REQUEST", "That time is not available");
+  }
+  const host = eventType.hosts.find((row) => row.userId === selection.organizerUserId);
   if (!host) {
     throw new TeamsRequestError("BAD_REQUEST", "That time is not available");
   }
@@ -646,11 +821,13 @@ export async function bookTeamEvent(input: {
     select: { username: true },
   });
   const end = new Date(startDate.getTime() + eventType.length * 60_000).toISOString();
-  const { getRegularBookingService } = await import("@calcom/features/bookings/di/RegularBookingService.container");
+  const { getRegularBookingService } = await import(
+    "@calcom/features/bookings/di/RegularBookingService.container"
+  );
   const bookingService = getRegularBookingService();
   const bookingData = {
     eventTypeId: host.scheduleEventTypeId,
-    start: startDate.toISOString(),
+    start: time,
     end,
     timeZone: input.timeZone,
     language: input.language || "en",
@@ -667,5 +844,45 @@ export async function bookTeamEvent(input: {
       userId: -1,
     },
   });
-  return { uid: booking.uid, hostUserId };
+  const stored = await prisma.booking.findUnique({
+    where: { uid: booking.uid },
+    select: { id: true },
+  });
+  if (!stored) {
+    throw new TeamsRequestError("BAD_REQUEST", "Booking could not be recorded");
+  }
+  const otherHostIds = selection.hostUserIds.filter((userId) => userId !== selection.organizerUserId);
+  if (otherHostIds.length > 0) {
+    const people = await prisma.user.findMany({
+      where: { id: { in: otherHostIds } },
+      select: { name: true, email: true, timeZone: true },
+    });
+    await prisma.attendee.createMany({
+      data: people.map((person) => ({
+        bookingId: stored.id,
+        email: person.email,
+        name: person.name || person.email,
+        timeZone: person.timeZone || input.timeZone,
+        locale: "en",
+      })),
+    });
+  }
+  if (typeof booking.uid !== "string") {
+    throw new TeamsRequestError("BAD_REQUEST", "Booking could not be recorded");
+  }
+  await prisma.teamsAssignment.create({
+    data: {
+      teamsEventTypeId: eventType.id,
+      bookingId: stored.id,
+      bookingUid: booking.uid,
+      assignedUserId: selection.organizerUserId,
+      hostUserIds: selection.hostUserIds,
+      assignmentReason: selection.assignmentReason,
+    },
+  });
+  return {
+    uid: booking.uid,
+    hostUserId: selection.organizerUserId,
+    assignmentReason: selection.assignmentReason,
+  };
 }

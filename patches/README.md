@@ -1,6 +1,6 @@
 # Patch queue
 
-`patches/NNN-*.md` documents each seam patched in upstream core files. Teams core seams start at `010`. SSO seams start at `050`.
+`patches/NNN-*.md` documents each seam patched in upstream core files. Teams core seams start at `010`. Scheduling seams start at `020`. SSO seams start at `050`.
 
 - `000-drop-dangling-enterprise-refs` records commit `e9c8925`. The cleanup stays on `main`; the `.patch` is what sync replays.
 - `001-drop-commercial-license-upsell` deletes unreferenced upsell strings from `packages/i18n/locales/*/common.json`.

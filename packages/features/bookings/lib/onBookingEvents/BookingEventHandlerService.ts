@@ -1,6 +1,13 @@
 import type { ISimpleLogger } from "@calcom/features/di/shared/services/logger.service";
 import type { HashedLinkService } from "@calcom/features/hashedLink/lib/service/HashedLinkService";
 import { safeStringify } from "@calcom/lib/safeStringify";
+import {
+  type BeforeHostSelectionInput,
+  type HostCancellationInput,
+  type HostSelection,
+  onHostCancelled as planHostCancellation,
+  beforeHostSelection as selectHostsBeforeBooking,
+} from "@seatrota/teams-scheduling";
 import type { BookingCreatedPayload, BookingRescheduledPayload } from "./types";
 
 interface BookingEventHandlerDeps {
@@ -30,6 +37,16 @@ export class BookingEventHandlerService {
       return;
     }
     await this.onBookingCreatedOrRescheduled(payload);
+  }
+
+  beforeHostSelection(input: BeforeHostSelectionInput): HostSelection | null {
+    this.log.debug("beforeHostSelection", safeStringify(input));
+    return selectHostsBeforeBooking(input);
+  }
+
+  onHostCancelled(input: HostCancellationInput): HostSelection | null {
+    this.log.debug("onHostCancelled", safeStringify(input));
+    return planHostCancellation(input);
   }
 
   async onBookingRescheduled(params: OnBookingRescheduledParams) {

@@ -1,0 +1,99 @@
+import { prisma } from "@calcom/prisma";
+import { expect } from "@playwright/test";
+import { test } from "./lib/fixtures";
+
+test.afterEach(async ({ users }) => {
+  await users.deleteAll();
+});
+
+test("a 3-member team books 6 round-robin meetings across the hosts", async ({ page, users }) => {
+  test.setTimeout(300_000);
+  const owner = await users.create({ name: "Round Robin Owner" });
+  const first = await users.create({ name: "Round Robin First" });
+  const second = await users.create({ name: "Round Robin Second" });
+  const slug = `robin-${owner.id}`;
+
+  await owner.login();
+  await page.goto("/settings/teams");
+  await page.getByTestId("team-name").fill("Robin");
+  await page.getByTestId("team-slug").fill(slug);
+  await page.getByTestId("team-create").click();
+  await expect(page.getByTestId("team-open").filter({ hasText: "Robin" })).toBeVisible();
+
+  for (const member of [first, second]) {
+    await page.goto(`/settings/teams/${slug}`);
+    await page.getByTestId("team-invite-email").fill(member.email);
+    await page.getByTestId("team-invite-submit").click();
+    await expect(page.getByText("Invite sent")).toBeVisible();
+    const invite = await prisma.teamsInvite.findFirstOrThrow({
+      where: { email: member.email },
+      orderBy: { id: "desc" },
+    });
+    await owner.logout();
+    await member.login();
+    await page.goto(`/teams/invite/${invite.token}`);
+    await page.getByTestId("team-accept-invite").click();
+    await expect(page.getByTestId("team-joined")).toContainText("You joined Robin");
+    await member.logout();
+    await owner.login();
+  }
+
+  await page.goto(`/settings/teams/${slug}`);
+  await expect(page.getByTestId("team-member")).toHaveCount(3);
+  await page.getByTestId("team-event-title").fill("Demo");
+  await page.getByTestId("team-event-slug").fill("demo");
+  await page.getByTestId("team-event-length").fill("30");
+  await page.getByTestId("team-scheduling-type").selectOption("ROUND_ROBIN");
+  await page.getByTestId("team-event-create").click();
+  await expect(page.getByTestId("team-event-link").filter({ hasText: "Demo" })).toBeVisible();
+  await owner.logout();
+
+  await page.goto(`/team/${slug}/demo`);
+  await expect(page.getByTestId("team-slot-day").first()).toBeVisible();
+  const dayButtons = page.getByTestId("team-slot-day");
+  const openings: { day: string; time: string }[] = [];
+  const dayCount = await dayButtons.count();
+  for (let index = 0; index < dayCount && openings.length < 6; index += 1) {
+    const day = (await dayButtons.nth(index).innerText()).trim();
+    await dayButtons.nth(index).click();
+    const time = await page.getByTestId("team-slot-time").first().getAttribute("data-time");
+    if (time) {
+      openings.push({ day, time });
+    }
+  }
+  expect(openings).toHaveLength(6);
+
+  for (let index = 0; index < openings.length; index += 1) {
+    const opening = openings[index];
+    if (!opening) {
+      continue;
+    }
+    await page.goto(`/team/${slug}/demo`);
+    await page.getByTestId("team-slot-day").filter({ hasText: opening.day }).click();
+    await page.locator(`[data-time="${opening.time}"]`).click();
+    await page.getByTestId("team-book-name").fill(`Guest ${index + 1}`);
+    await page.getByTestId("team-book-email").fill(`guest-${index}-${owner.id}@example.com`);
+    await page.getByTestId("team-book-submit").click();
+    await page.waitForURL((url) => url.pathname.startsWith("/booking/"));
+    await expect(page.getByTestId("success-page")).toBeVisible();
+  }
+
+  const rows = await prisma.$queryRaw<Array<{ assignedUserId: number; bookings: number }>>`
+    SELECT a."assignedUserId", COUNT(*)::int AS bookings
+    FROM "teams_assignment" a
+    INNER JOIN "teams_event_type" e ON e.id = a."teamsEventTypeId"
+    INNER JOIN "teams_team" t ON t.id = e."teamId"
+    WHERE t.slug = ${slug} AND a."supersededAt" IS NULL
+    GROUP BY a."assignedUserId"
+    ORDER BY a."assignedUserId"
+  `;
+  const printed = rows.map((row) => ({
+    assignedUserId: Number(row.assignedUserId),
+    bookings: Number(row.bookings),
+  }));
+  console.log("RR assignment query", JSON.stringify(printed));
+  expect(printed).toHaveLength(3);
+  for (const row of printed) {
+    expect(row.bookings).toBe(2);
+  }
+});
