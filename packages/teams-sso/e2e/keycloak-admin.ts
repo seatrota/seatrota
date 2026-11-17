@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2026 SeatRota contributors
 
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
+import realmDefinition from "./realm-seatrota.json";
 
 export interface ImportedRealm {
   baseUrl: string;
@@ -48,8 +46,8 @@ export async function importSeatRotaRealm(baseUrl: string): Promise<ImportedReal
     username: admin,
     password: adminPassword,
   });
-  const realmPath = join(dirname(fileURLToPath(import.meta.url)), "realm-seatrota.json");
-  const realm = JSON.parse(readFileSync(realmPath, "utf8")) as { realm: string };
+  // Imported as JSON so both vitest and Playwright (CommonJS transform) can load it.
+  const realm = realmDefinition as { realm: string };
   const existing = await fetch(`${baseUrl}/admin/realms/${realm.realm}`, {
     headers: { authorization: `Bearer ${token}` },
   });
@@ -65,7 +63,7 @@ export async function importSeatRotaRealm(baseUrl: string): Promise<ImportedReal
   const created = await fetch(`${baseUrl}/admin/realms`, {
     method: "POST",
     headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-    body: readFileSync(realmPath),
+    body: JSON.stringify(realmDefinition),
   });
   if (!created.ok) {
     throw new Error(`Realm import failed (${created.status}): ${await created.text()}`);

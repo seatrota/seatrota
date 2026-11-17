@@ -8,7 +8,7 @@ After a domain is verified, a person who signs in with an email on that domain j
 
 Self-hosted installs keep SSO available. Set `SEATROTA_SSO_ENABLED=0` to turn the plan flag off.
 
-The sign-in callback is `/api/auth/callback/teams-oidc-team-<teamId>` for a team provider and `/api/auth/callback/teams-oidc-instance` for the instance provider. The team settings page prints the matching sign-in link.
+The sign-in callback is `/api/auth/callback/teams-oidc-team-<teamId>` for a team provider and `/api/auth/callback/teams-oidc-instance` for the instance provider. People start SSO from `/auth/signin`, which lists a "Sign in with <team name> SSO" button for each enabled team provider (and "Instance SSO" for the instance provider). The team settings page links to it.
 
 Domain proof is a DNS TXT record. The settings page shows the host and the value, in this shape:
 

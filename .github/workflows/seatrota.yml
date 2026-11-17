@@ -117,7 +117,10 @@ jobs:
       NEXTAUTH_URL: http://localhost:3000
       NEXT_PUBLIC_WEBAPP_URL: http://localhost:3000
       NEXT_PUBLIC_WEBSITE_URL: http://localhost:3000
-      CALENDSO_ENCRYPTION_KEY: seatrota-ci-encryption-key-32b
+      CALENDSO_ENCRYPTION_KEY: abcdefghijklmnopqrstuvwxyz123456
+      KEYCLOAK_URL: http://127.0.0.1:8080
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
       NEXT_PUBLIC_IS_E2E: "1"
       PLAYWRIGHT_HEADLESS: "1"
     steps:
@@ -133,14 +136,30 @@ jobs:
       - name: Install
         run: yarn install --immutable
 
+      # Started early so Keycloak is ready by the time the SSO spec runs.
+      # See the sso-keycloak job for why this is docker run, not a service.
+      - name: Start Keycloak
+        run: |
+          docker run -d --name keycloak             -p 8080:8080             -e KC_BOOTSTRAP_ADMIN_USERNAME=admin             -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin             quay.io/keycloak/keycloak:26.0.7             start-dev
+
       - name: Build the web app
         run: yarn build
+
+      - name: Apply database migrations
+        run: yarn workspace @calcom/prisma prisma migrate deploy
 
       - name: Install Playwright Chromium
         run: yarn playwright install --with-deps chromium
 
       - name: Playwright teams-core e2e
         run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
+
+      - name: Playwright SSO e2e (Keycloak browser login)
+        run: yarn playwright test apps/web/playwright/teams-sso.e2e.ts --project=@calcom/web --workers=1
+
+      - name: Keycloak log on failure
+        if: failure()
+        run: docker logs keycloak | tail -200
 
   sso-keycloak:
     name: OIDC e2e (Keycloak)

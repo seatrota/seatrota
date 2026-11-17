@@ -10,7 +10,8 @@
     "./provider-registry": "./provider-registry.ts",
     "./password-login": "./password-login.ts",
     "./router": "./router.ts",
-    "./settings/sso-panel": "./settings/sso-panel.tsx"
+    "./settings/sso-panel": "./settings/sso-panel.tsx",
+    "./e2e/keycloak-admin": "./e2e/keycloak-admin.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

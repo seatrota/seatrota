@@ -104,7 +104,7 @@ function viewConnection(
 ) {
   return {
     providerId: providerIdForScopeKey(connection.scopeKey),
-    signInPath: `/api/auth/signin/${providerIdForScopeKey(connection.scopeKey)}`,
+    signInPath: "/auth/signin",
     discoveryUrl: connection.discoveryUrl,
     clientId: connection.clientId,
     hasClientSecret: connection.clientSecretCiphertext.length > 0,
@@ -334,13 +334,14 @@ export async function listEnabledOidcProviders(): Promise<TeamsOidcProviderConfi
       clientId: true,
       clientSecretCiphertext: true,
       scopes: true,
+      team: { select: { name: true } },
     },
     orderBy: { id: "asc" },
   });
   return rows.map((row) =>
     teamsOidcProvider({
       id: providerIdForScopeKey(row.scopeKey),
-      name: row.scopeKey === "instance" ? "Instance SSO" : "Team SSO",
+      name: row.scopeKey === "instance" ? "Instance SSO" : `${row.team?.name ?? "Team"} SSO`,
       discoveryUrl: row.discoveryUrl,
       clientId: row.clientId,
       clientSecret: decryptClientSecret(row.clientSecretCiphertext),
