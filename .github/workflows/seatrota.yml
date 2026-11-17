@@ -322,6 +322,12 @@ jobs:
           echo "QUICKSTART_NODE_DIR=${{ runner.temp }}" >> "$GITHUB_ENV"
           echo "QUICKSTART_SCREENSHOT=${{ github.workspace }}/quickstart-failure.png" >> "$GITHUB_ENV"
 
+      # Until v0.1.0 is tagged the registry has no image, so build this commit
+      # under the name the guide pulls. The guide's docker pull then finds it
+      # locally; the registry pull itself is checked after the tag is pushed.
+      - name: Build the image the guide pulls
+        run: docker build -f docker/Dockerfile -t ghcr.io/seatrota/seatrota:v0.1.0 .
+
       - name: Run docs/QUICKSTART.md
         run: bash scripts/quickstart-smoke.sh "$RUNNER_TEMP/quickstart"
 

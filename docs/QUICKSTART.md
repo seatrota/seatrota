@@ -57,16 +57,25 @@ The example also lists these. With the defaults in that file (`SEATROTA_HOSTED=0
 ## 3. Start the stack
 
 ```sh
-docker compose -f docker/compose.yml up --build
+docker pull ghcr.io/seatrota/seatrota:v0.1.0
+docker compose -f docker/compose.yml up
 ```
 
-That builds `docker/Dockerfile` as `seatrota:local` and starts it after Postgres answers `pg_isready`. The first build takes 15-25 minutes and needs about 8 GB of memory for Docker. The entrypoint then checks the environment, applies migrations, and runs `next start` on port 3000. Open <http://localhost:3000>.
+`docker/compose.yml` runs `ghcr.io/seatrota/seatrota:v0.1.0` unless `SEATROTA_IMAGE` names another image. Compose waits until Postgres answers `pg_isready`, then starts the app. The entrypoint checks the environment, applies migrations, and runs `next start` on port 3000. Open <http://localhost:3000>.
 
 The image health check requests `/auth/login`. On an empty database that URL redirects to `/auth/setup`.
 
-The build compiles `NEXT_PUBLIC_WEBAPP_URL` into the client, and Compose passes `http://localhost:3000` by default. To serve another origin, export `NEXT_PUBLIC_WEBAPP_URL` in the shell before the build. Then set that same origin for `NEXT_PUBLIC_WEBAPP_URL` and `NEXTAUTH_URL` in `docker/seatrota.env`.
+The published image is `linux/amd64` and is built for `http://localhost:3000`. That URL is compiled into the client, so any other public URL needs a build from source.
 
 To stop the stack, run `docker compose -f docker/compose.yml down`. Add `-v` to remove the database volume as well.
+
+### Build from source (alternative)
+
+```bash
+SEATROTA_IMAGE=seatrota:local docker compose -f docker/compose.yml up --build
+```
+
+That builds `docker/Dockerfile` as `seatrota:local`. The first build takes 15-25 minutes and needs about 8 GB of memory for Docker. For another public URL, export `NEXT_PUBLIC_WEBAPP_URL` in the shell before the build, then set that same origin for `NEXT_PUBLIC_WEBAPP_URL` and `NEXTAUTH_URL` in `docker/seatrota.env`.
 
 ## 4. First team
 

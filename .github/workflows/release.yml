@@ -1,0 +1,80 @@
+name: Release image
+
+# Publishes ghcr.io/seatrota/seatrota from docker/Dockerfile.
+# Only a v* tag push publishes (that tag and latest). Pull requests and
+# workflow_dispatch build and check the image without pushing.
+on:
+  push:
+    tags:
+      - "v*"
+  # Build-only check of this workflow when it or the image inputs change.
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - docker/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    name: Build SeatRota image
+    # Pinned: ubuntu-latest is 26.04; keep every SeatRota job on 24.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image tags
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          image=ghcr.io/seatrota/seatrota
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            {
+              echo "list<<EOF"
+              echo "${image}:${GITHUB_REF_NAME}"
+              echo "${image}:latest"
+              echo "EOF"
+            } >> "${GITHUB_OUTPUT}"
+          else
+            echo "list=${image}:dry-run" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          # amd64 only. The Dockerfile build stage runs a full yarn install
+          # and yarn build. QEMU arm64 of that stage does not finish inside
+          # the 6-hour GitHub-hosted job limit.
+          platforms: linux/amd64
+          # load: true (the dry run) exports one image. Provenance would
+          # wrap it in a manifest list, which that exporter rejects.
+          provenance: false
+          push: ${{ github.event_name == 'push' }}
+          load: ${{ github.event_name != 'push' }}
+          tags: ${{ steps.tags.outputs.list }}
+          build-args: |
+            NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
+
+      - name: Check the built image starts its environment check
+        if: github.event_name != 'push'
+        run: |
+          out=$(docker run --rm --entrypoint node ghcr.io/seatrota/seatrota:dry-run /app/.seatrota/check-env.js 2>&1 || true)
+          echo "$out"
+          echo "$out" | grep -q "DATABASE_URL is not set"
