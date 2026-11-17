@@ -8,14 +8,13 @@ This tree started as a depth-1 export of that commit. The SeatRota git history d
 
 ## Sync method
 
-Future updates are produced in a separate mirror, never by fetching the full upstream history into this repository.
+Updates are built in a throwaway scratch repository. That repository borrows objects from this repository and from a shallow mirror of calcom/cal.diy (`git clone --shallow-since=2026-04-16`). Upstream history is never fetched into this repository; only the objects of the final tree are.
 
-1. Clone https://github.com/calcom/cal.diy with `git clone --shallow-since=2026-04-16` into a temporary directory.
-2. In that mirror, run `git diff <recorded SHA> <new SHA>` (with `--binary`).
-3. Apply that diff to this working tree with `git apply`.
-4. Re-apply the patch queue under `patches/`: any `patches/*.patch` and `patches/*.diff`, in sorted order. `patches/*.md` files document seams and are not applied.
-5. Write the new full SHA and its committer date into this file.
+`scripts/upstream-sync.sh [--dry-run] [--report FILE] <upstream-ref>` does the following:
 
-`scripts/upstream-sync.sh` implements those steps. Pass `--dry-run` to build the diff and run `git apply --check` without changing this tree or this file.
+1. **Snapshot check.** Confirms that this repository's root commit has the tree of the SHA recorded above.
+2. **Queue check.** Applies `patches/*.patch` in C-locale order to that snapshot and confirms the result matches every file on the current branch, except the SeatRota-owned paths listed in `scripts/seatrota-owned.txt`.
+3. **Replay.** Applies the same patches to `<upstream-ref>`. A patch that does not apply directly is retried as a 3-way merge. If that also fails, it is reported as a conflict.
+4. **Sync** (without `--dry-run`, and only when nothing conflicts). Replaces the working tree with the patched upstream tree plus the owned paths, then updates the SHA and date in this file. Changes are staged and not committed.
 
-Local patch files are reversed with `git apply -R` before the upstream diff, then applied again afterwards, so a seam can be replayed on the new upstream tree. With an empty patch queue that reverse step is a no-op.
+CI runs a dry run on every pull request: against the recorded SHA, where it must pass, and against upstream `main`, as a report only. See `docs/upstream-sync.md`.

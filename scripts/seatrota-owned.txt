@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 SeatRota contributors
+#
+# Paths SeatRota owns outright. scripts/upstream-sync.sh keeps these exactly as
+# they are on the current branch; everything else comes from the new upstream
+# tree with patches/*.patch re-applied. One git pathspec per line.
+#
+# "remove:" lines name upstream files SeatRota deletes (build artifacts that
+# upstream once committed); the sync removes them again after an update.
+
+packages/teams-billing
+packages/teams-booking
+packages/teams-core
+packages/teams-insights
+packages/teams-scheduling
+packages/teams-sso
+packages/teams-workflows
+patches
+docker
+docs/sso
+docs/workflows
+docs/insights
+docs/hosting
+docs/upstream-sync.md
+docs/STATUS.md
+scripts/cleanroom-check.sh
+scripts/cleanroom-selftest.sh
+scripts/dev-boot-smoke.sh
+scripts/upstream-sync.sh
+scripts/seatrota-owned.txt
+.github/workflows/seatrota.yml
+.github/spdx-header-agpl.txt
+LICENSE-AGPL
+UPSTREAM.md
+README.md
+CONTRIBUTING.md
+
+remove: packages/app-store/tsconfig.build.tsbuildinfo
+remove: packages/trpc/tsconfig.server.build.tsbuildinfo
