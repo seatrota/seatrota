@@ -20,7 +20,7 @@ docker compose -f docker/compose.yml up --build
 CI builds the image and checks that:
 
 - a live Stripe key stops the container at startup;
-- with Postgres, the login page answers 200;
+- with Postgres, the login page answers 200 (after the first-run redirect on an empty database);
 - the reminders cron route answers 401 without its key and 200 with it.
 
 ## Configuration
