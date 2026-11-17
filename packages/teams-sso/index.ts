@@ -13,3 +13,15 @@ export function rosterSignOnLabel(signOn: RosterSignOn): string {
   }
   return `${signOn.rosterId}:${signOn.issuer}`;
 }
+
+export type { DnsTxtResolver } from "./domain";
+export {
+  assertDomain,
+  emailDomain,
+  txtRecordProvesDomain,
+  verificationHost,
+  verificationTokenText,
+} from "./domain";
+export { decidePasswordLogin } from "./enforce";
+export { createSelfHostSsoPlan, ssoPlanEnabled } from "./plan";
+export { mapGroupsToRole, readGroupClaim } from "./roles";

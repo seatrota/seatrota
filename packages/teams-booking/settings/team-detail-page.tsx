@@ -3,10 +3,10 @@
 // Copyright (c) 2026 SeatRota contributors
 
 import { trpc } from "@calcom/trpc/react";
+import TeamSsoPanel from "@seatrota/teams-sso/settings/sso-panel";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import { cardStyle, inputStyle, pageStyle, rowStyle } from "../ui";
 
 const MANAGER = new Set(["OWNER", "ADMIN"]);
@@ -137,9 +137,7 @@ export default function TeamDetailPage() {
             </Link>
             <span>{eventType.length} min</span>
             {canManage ? (
-              <button
-                type="button"
-                onClick={() => deleteEvent.mutate({ slug, eventSlug: eventType.slug })}>
+              <button type="button" onClick={() => deleteEvent.mutate({ slug, eventSlug: eventType.slug })}>
                 Delete
               </button>
             ) : null}
@@ -211,6 +209,8 @@ export default function TeamDetailPage() {
           </form>
         ) : null}
       </section>
+
+      <TeamSsoPanel slug={slug} canManage={canManage} />
     </div>
   );
 }

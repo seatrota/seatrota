@@ -56,7 +56,7 @@ jobs:
         run: yarn type-check --filter='@seatrota/*'
 
       - name: Unit tests
-        run: yarn workspace @seatrota/teams-core test
+        run: yarn workspace @seatrota/teams-core test && yarn workspace @seatrota/teams-sso test
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
@@ -141,3 +141,65 @@ jobs:
 
       - name: Playwright teams-core e2e
         run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
+
+  sso-keycloak:
+    name: OIDC e2e (Keycloak)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: calendso
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      CALENDSO_ENCRYPTION_KEY: abcdefghijklmnopqrstuvwxyz123456
+      KEYCLOAK_URL: http://127.0.0.1:8080
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Enable the repository package manager
+        run: corepack enable
+
+      - name: Install
+        run: yarn install --immutable
+
+      # GitHub Actions service containers cannot pass Keycloak's start-dev
+      # command (actions/runner#2139). The production image command refuses
+      # HTTP, so the job starts the Keycloak container itself and the test
+      # imports packages/teams-sso/e2e/realm-seatrota.json over the admin API.
+      - name: Start Keycloak
+        run: |
+          docker run -d --name keycloak \
+            -p 8080:8080 \
+            -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+            -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+            -e KEYCLOAK_ADMIN=admin \
+            -e KEYCLOAK_ADMIN_PASSWORD=admin \
+            quay.io/keycloak/keycloak:26.0.7 \
+            start-dev
+
+      - name: Apply database migrations
+        run: yarn workspace @calcom/prisma prisma migrate deploy
+
+      - name: Keycloak SSO e2e
+        run: yarn workspace @seatrota/teams-sso test:e2e

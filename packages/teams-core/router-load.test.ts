@@ -21,6 +21,7 @@ test("teams router exposes the core procedures", async () => {
       "publicTeam",
       "slots",
       "book",
+      "ssoGet",
     ])
   );
 });

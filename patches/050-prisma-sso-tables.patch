@@ -1,0 +1,161 @@
+diff --git a/packages/prisma/migrations/20261117120000_teams_sso/migration.sql b/packages/prisma/migrations/20261117120000_teams_sso/migration.sql
+new file mode 100644
+index 0000000..5a3b81d
+--- /dev/null
++++ b/packages/prisma/migrations/20261117120000_teams_sso/migration.sql
+@@ -0,0 +1,70 @@
++-- CreateTable
++CREATE TABLE "public"."teams_sso_connection" (
++    "id" SERIAL NOT NULL,
++    "scopeKey" TEXT NOT NULL,
++    "teamId" INTEGER,
++    "discoveryUrl" TEXT NOT NULL,
++    "clientId" TEXT NOT NULL,
++    "clientSecretCiphertext" TEXT NOT NULL,
++    "scopes" TEXT NOT NULL DEFAULT 'openid email profile',
++    "enforceSso" BOOLEAN NOT NULL DEFAULT false,
++    "groupClaim" TEXT NOT NULL DEFAULT '',
++    "enabled" BOOLEAN NOT NULL DEFAULT true,
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++    "updatedAt" TIMESTAMP(3) NOT NULL,
++
++    CONSTRAINT "teams_sso_connection_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateTable
++CREATE TABLE "public"."teams_sso_domain" (
++    "id" SERIAL NOT NULL,
++    "connectionId" INTEGER NOT NULL,
++    "domain" TEXT NOT NULL,
++    "teamId" INTEGER NOT NULL,
++    "verificationToken" TEXT NOT NULL,
++    "verifiedAt" TIMESTAMP(3),
++    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
++
++    CONSTRAINT "teams_sso_domain_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateTable
++CREATE TABLE "public"."teams_sso_role_map" (
++    "id" SERIAL NOT NULL,
++    "connectionId" INTEGER NOT NULL,
++    "groupName" TEXT NOT NULL,
++    "role" "public"."TeamsMembershipRole" NOT NULL,
++
++    CONSTRAINT "teams_sso_role_map_pkey" PRIMARY KEY ("id")
++);
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_sso_connection_scopeKey_key" ON "public"."teams_sso_connection"("scopeKey");
++
++-- CreateIndex
++CREATE INDEX "teams_sso_connection_teamId_idx" ON "public"."teams_sso_connection"("teamId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_sso_domain_domain_key" ON "public"."teams_sso_domain"("domain");
++
++-- CreateIndex
++CREATE INDEX "teams_sso_domain_connectionId_idx" ON "public"."teams_sso_domain"("connectionId");
++
++-- CreateIndex
++CREATE INDEX "teams_sso_domain_teamId_idx" ON "public"."teams_sso_domain"("teamId");
++
++-- CreateIndex
++CREATE UNIQUE INDEX "teams_sso_role_map_connectionId_groupName_key" ON "public"."teams_sso_role_map"("connectionId", "groupName");
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_sso_connection" ADD CONSTRAINT "teams_sso_connection_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams_team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_sso_domain" ADD CONSTRAINT "teams_sso_domain_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "public"."teams_sso_connection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_sso_domain" ADD CONSTRAINT "teams_sso_domain_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "public"."teams_team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
++
++-- AddForeignKey
++ALTER TABLE "public"."teams_sso_role_map" ADD CONSTRAINT "teams_sso_role_map_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "public"."teams_sso_connection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+diff --git a/packages/prisma/schema.prisma b/packages/prisma/schema.prisma
+index 316b721..7bb8fe7 100644
+--- a/packages/prisma/schema.prisma
++++ b/packages/prisma/schema.prisma
+@@ -2863,14 +2863,16 @@ enum TeamsMembershipRole {
+ }
+ 
+ model TeamsTeam {
+-  id          Int               @id @default(autoincrement())
+-  name        String
+-  slug        String            @unique
+-  createdAt   DateTime          @default(now())
+-  updatedAt   DateTime          @updatedAt
+-  memberships TeamsMembership[]
+-  invites     TeamsInvite[]
+-  eventTypes  TeamsEventType[]
++  id             Int                  @id @default(autoincrement())
++  name           String
++  slug           String               @unique
++  createdAt      DateTime             @default(now())
++  updatedAt      DateTime             @updatedAt
++  memberships    TeamsMembership[]
++  invites        TeamsInvite[]
++  eventTypes     TeamsEventType[]
++  ssoConnections TeamsSsoConnection[]
++  ssoDomains     TeamsSsoDomain[]
+ 
+   @@map("teams_team")
+ }
+@@ -2938,3 +2940,55 @@ model TeamsHost {
+   @@index([userId])
+   @@map("teams_host")
+ }
++
++/// One OIDC client for a team (`team:<id>`) or the whole instance (`instance`).
++/// `scopeKey` is the unique key because Postgres unique indexes allow many null team ids.
++model TeamsSsoConnection {
++  id                     Int               @id @default(autoincrement())
++  scopeKey               String            @unique
++  teamId                 Int?
++  discoveryUrl           String
++  clientId               String
++  /// AES-256 ciphertext from CALENDSO_ENCRYPTION_KEY. Never selected for API responses.
++  clientSecretCiphertext String
++  scopes                 String            @default("openid email profile")
++  enforceSso             Boolean           @default(false)
++  /// Empty means group names are ignored and new members join as MEMBER.
++  groupClaim             String            @default("")
++  enabled                Boolean           @default(true)
++  createdAt              DateTime          @default(now())
++  updatedAt              DateTime          @updatedAt
++  team                   TeamsTeam?        @relation(fields: [teamId], references: [id], onDelete: Cascade)
++  domains                TeamsSsoDomain[]
++  roleMaps               TeamsSsoRoleMap[]
++
++  @@index([teamId])
++  @@map("teams_sso_connection")
++}
++
++model TeamsSsoDomain {
++  id                Int                @id @default(autoincrement())
++  connectionId      Int
++  domain            String             @unique
++  teamId            Int
++  verificationToken String
++  verifiedAt        DateTime?
++  createdAt         DateTime           @default(now())
++  connection        TeamsSsoConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
++  team              TeamsTeam          @relation(fields: [teamId], references: [id], onDelete: Cascade)
++
++  @@index([connectionId])
++  @@index([teamId])
++  @@map("teams_sso_domain")
++}
++
++model TeamsSsoRoleMap {
++  id           Int                 @id @default(autoincrement())
++  connectionId Int
++  groupName    String
++  role         TeamsMembershipRole
++  connection   TeamsSsoConnection  @relation(fields: [connectionId], references: [id], onDelete: Cascade)
++
++  @@unique([connectionId, groupName])
++  @@map("teams_sso_role_map")
++}

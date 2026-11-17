@@ -21,7 +21,9 @@ export type TeamsProcedure =
   | "listEventTypes"
   | "publicTeam"
   | "slots"
-  | "book";
+  | "book"
+  | "ssoRead"
+  | "ssoManage";
 
 export type TeamsAccessNeed = "public" | "authenticated" | "read" | "manage" | "invitee";
 
@@ -40,6 +42,8 @@ export const PROCEDURE_ACCESS: Record<TeamsProcedure, TeamsAccessNeed> = {
   publicTeam: "public",
   slots: "public",
   book: "public",
+  ssoRead: "read",
+  ssoManage: "manage",
 };
 
 export class TeamsAccessError extends Error {

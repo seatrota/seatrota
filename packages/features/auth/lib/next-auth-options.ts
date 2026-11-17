@@ -38,6 +38,7 @@ import type { Membership, Team } from "@calcom/prisma/client";
 import { CreationSource, IdentityProvider, MembershipRole, UserPermissionRole } from "@calcom/prisma/enums";
 import { teamMetadataSchema, userMetadata } from "@calcom/prisma/zod-utils";
 import type { UserProfile } from "@calcom/types/UserProfile";
+import { registerTeamsOidcProviders } from "@seatrota/teams-sso/provider-registry";
 import { calendar_v3 } from "@googleapis/calendar";
 import { waitUntil } from "@vercel/functions";
 import { OAuth2Client } from "googleapis-common";
@@ -156,6 +157,9 @@ export async function authorizeCredentials(
     console.error(`For some reason credentials are missing`);
     throw new Error(ErrorCode.InternalServerError);
   }
+
+  const { assertTeamsPasswordLoginAllowed } = await import("@seatrota/teams-sso/password-login");
+  await assertTeamsPasswordLoginAllowed(credentials.email);
 
   const userRepo = new UserRepository(prisma);
   const user = await userRepo.findByEmailAndIncludeProfilesAndPassword({
@@ -379,7 +383,8 @@ export const getOptions = ({
   getDubId: () => string | undefined;
   /** Ad tracking data for Stripe customer metadata */
   getTrackingData: () => TrackingData;
-}): AuthOptions => ({
+}): AuthOptions => {
+  const options: AuthOptions = {
   adapter: calcomAdapter,
   session: {
     strategy: "jwt",
@@ -1208,7 +1213,9 @@ export const getOptions = ({
       }
     },
   },
-});
+  };
+  return registerTeamsOidcProviders(options);
+};
 
 /**
  * Identifies the profile the user should be logged into.

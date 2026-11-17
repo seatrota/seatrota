@@ -2863,14 +2863,16 @@ enum TeamsMembershipRole {
 }
 
 model TeamsTeam {
-  id          Int               @id @default(autoincrement())
-  name        String
-  slug        String            @unique
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  memberships TeamsMembership[]
-  invites     TeamsInvite[]
-  eventTypes  TeamsEventType[]
+  id             Int                  @id @default(autoincrement())
+  name           String
+  slug           String               @unique
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  memberships    TeamsMembership[]
+  invites        TeamsInvite[]
+  eventTypes     TeamsEventType[]
+  ssoConnections TeamsSsoConnection[]
+  ssoDomains     TeamsSsoDomain[]
 
   @@map("teams_team")
 }
@@ -2937,4 +2939,56 @@ model TeamsHost {
   @@unique([teamsEventTypeId, userId])
   @@index([userId])
   @@map("teams_host")
+}
+
+/// One OIDC client for a team (`team:<id>`) or the whole instance (`instance`).
+/// `scopeKey` is the unique key because Postgres unique indexes allow many null team ids.
+model TeamsSsoConnection {
+  id                     Int               @id @default(autoincrement())
+  scopeKey               String            @unique
+  teamId                 Int?
+  discoveryUrl           String
+  clientId               String
+  /// AES-256 ciphertext from CALENDSO_ENCRYPTION_KEY. Never selected for API responses.
+  clientSecretCiphertext String
+  scopes                 String            @default("openid email profile")
+  enforceSso             Boolean           @default(false)
+  /// Empty means group names are ignored and new members join as MEMBER.
+  groupClaim             String            @default("")
+  enabled                Boolean           @default(true)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  team                   TeamsTeam?        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  domains                TeamsSsoDomain[]
+  roleMaps               TeamsSsoRoleMap[]
+
+  @@index([teamId])
+  @@map("teams_sso_connection")
+}
+
+model TeamsSsoDomain {
+  id                Int                @id @default(autoincrement())
+  connectionId      Int
+  domain            String             @unique
+  teamId            Int
+  verificationToken String
+  verifiedAt        DateTime?
+  createdAt         DateTime           @default(now())
+  connection        TeamsSsoConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  team              TeamsTeam          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([teamId])
+  @@map("teams_sso_domain")
+}
+
+model TeamsSsoRoleMap {
+  id           Int                 @id @default(autoincrement())
+  connectionId Int
+  groupName    String
+  role         TeamsMembershipRole
+  connection   TeamsSsoConnection  @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, groupName])
+  @@map("teams_sso_role_map")
 }

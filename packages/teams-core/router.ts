@@ -3,10 +3,10 @@
 
 import authedProcedure from "@calcom/trpc/server/procedures/authedProcedure";
 import publicProcedure from "@calcom/trpc/server/procedures/publicProcedure";
-import { router } from "@calcom/trpc/server/trpc";
+import { mergeRouters, router } from "@calcom/trpc/server/trpc";
+import { teamsSsoRouter } from "@seatrota/teams-sso/router";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-
 import { TeamsAccessError, TeamsRequestError, type TeamsRole } from "./permissions";
 import * as service from "./service";
 
@@ -30,7 +30,7 @@ async function run<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
-export const teamsRouter = router({
+const teamsCoreRouter = router({
   create: authedProcedure
     .input(z.object({ name: z.string().min(1).max(80), slug: z.string().min(1).max(60) }))
     .mutation(({ ctx, input }) => run(() => service.createTeam({ userId: ctx.user.id, ...input }))),
@@ -92,9 +92,7 @@ export const teamsRouter = router({
         hostUserIds: z.array(z.number().int()).min(1),
       })
     )
-    .mutation(({ ctx, input }) =>
-      run(() => service.createTeamEventType({ actorId: ctx.user.id, ...input }))
-    ),
+    .mutation(({ ctx, input }) => run(() => service.createTeamEventType({ actorId: ctx.user.id, ...input }))),
   updateEventType: authedProcedure
     .input(
       z.object({
@@ -106,14 +104,10 @@ export const teamsRouter = router({
         hostUserIds: z.array(z.number().int()).min(1).optional(),
       })
     )
-    .mutation(({ ctx, input }) =>
-      run(() => service.updateTeamEventType({ actorId: ctx.user.id, ...input }))
-    ),
+    .mutation(({ ctx, input }) => run(() => service.updateTeamEventType({ actorId: ctx.user.id, ...input }))),
   deleteEventType: authedProcedure
     .input(z.object({ slug: z.string(), eventSlug: z.string() }))
-    .mutation(({ ctx, input }) =>
-      run(() => service.deleteTeamEventType({ actorId: ctx.user.id, ...input }))
-    ),
+    .mutation(({ ctx, input }) => run(() => service.deleteTeamEventType({ actorId: ctx.user.id, ...input }))),
   publicTeam: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(({ input }) => run(() => service.publicTeam(input.slug))),
@@ -142,3 +136,5 @@ export const teamsRouter = router({
     )
     .mutation(({ input }) => run(() => service.bookTeamEvent(input))),
 });
+
+export const teamsRouter = mergeRouters(teamsCoreRouter, teamsSsoRouter);

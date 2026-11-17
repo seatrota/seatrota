@@ -1,0 +1,58 @@
+diff --git a/packages/features/auth/lib/next-auth-options.test.ts b/packages/features/auth/lib/next-auth-options.test.ts
+index e61f792..907be4f 100644
+--- a/packages/features/auth/lib/next-auth-options.test.ts
++++ b/packages/features/auth/lib/next-auth-options.test.ts
+@@ -196,6 +196,10 @@ vi.mock("next-auth/providers/credentials", () => ({ default: vi.fn(() => ({ id:
+ vi.mock("next-auth/providers/email", () => ({ default: vi.fn() }));
+ vi.mock("next-auth/providers/google", () => ({ default: vi.fn() }));
+ 
++vi.mock("@seatrota/teams-sso/password-login", () => ({
++  assertTeamsPasswordLoginAllowed: vi.fn().mockResolvedValue(undefined),
++}));
++
+ describe("CredentialsProvider authorize", () => {
+   let authorizeCredentials: typeof import("./next-auth-options").authorizeCredentials;
+   let verifyPassword: any;
+diff --git a/packages/features/auth/lib/next-auth-options.ts b/packages/features/auth/lib/next-auth-options.ts
+index 296e645..b283dc7 100644
+--- a/packages/features/auth/lib/next-auth-options.ts
++++ b/packages/features/auth/lib/next-auth-options.ts
+@@ -38,6 +38,7 @@ import type { Membership, Team } from "@calcom/prisma/client";
+ import { CreationSource, IdentityProvider, MembershipRole, UserPermissionRole } from "@calcom/prisma/enums";
+ import { teamMetadataSchema, userMetadata } from "@calcom/prisma/zod-utils";
+ import type { UserProfile } from "@calcom/types/UserProfile";
++import { registerTeamsOidcProviders } from "@seatrota/teams-sso/provider-registry";
+ import { calendar_v3 } from "@googleapis/calendar";
+ import { waitUntil } from "@vercel/functions";
+ import { OAuth2Client } from "googleapis-common";
+@@ -157,6 +158,9 @@ export async function authorizeCredentials(
+     throw new Error(ErrorCode.InternalServerError);
+   }
+ 
++  const { assertTeamsPasswordLoginAllowed } = await import("@seatrota/teams-sso/password-login");
++  await assertTeamsPasswordLoginAllowed(credentials.email);
++
+   const userRepo = new UserRepository(prisma);
+   const user = await userRepo.findByEmailAndIncludeProfilesAndPassword({
+     email: credentials.email,
+@@ -379,7 +383,8 @@ export const getOptions = ({
+   getDubId: () => string | undefined;
+   /** Ad tracking data for Stripe customer metadata */
+   getTrackingData: () => TrackingData;
+-}): AuthOptions => ({
++}): AuthOptions => {
++  const options: AuthOptions = {
+   adapter: calcomAdapter,
+   session: {
+     strategy: "jwt",
+@@ -1208,7 +1213,9 @@ export const getOptions = ({
+       }
+     },
+   },
+-});
++  };
++  return registerTeamsOidcProviders(options);
++};
+ 
+ /**
+  * Identifies the profile the user should be logged into.
