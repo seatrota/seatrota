@@ -87,3 +87,54 @@ jobs:
 
       - name: Boot smoke
         run: bash scripts/dev-boot-smoke.sh
+
+  teams-e2e:
+    name: Teams core e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: calendso
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      NEXTAUTH_SECRET: seatrota-ci-nextauth-secret
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:3000
+      NEXT_PUBLIC_WEBSITE_URL: http://localhost:3000
+      CALENDSO_ENCRYPTION_KEY: seatrota-ci-encryption-key-32b
+      NEXT_PUBLIC_IS_E2E: "1"
+      PLAYWRIGHT_HEADLESS: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Enable the repository package manager
+        run: corepack enable
+
+      - name: Install
+        run: yarn install --immutable
+
+      - name: Build the web app
+        run: yarn build
+
+      - name: Install Playwright Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Playwright teams-core e2e
+        run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
