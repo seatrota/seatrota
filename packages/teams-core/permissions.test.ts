@@ -43,7 +43,7 @@ describe("router permission checks", () => {
     expect(() => assertTeamsAccess({ procedure: "list", isAuthenticated: true, role: null })).not.toThrow();
   });
 
-  test.each(["get", "listEventTypes", "ssoRead"] as const)("members can read %s", (procedure) => {
+  test.each(["get", "listEventTypes", "ssoRead", "workflowRead"] as const)("members can read %s", (procedure) => {
     for (const role of ["OWNER", "ADMIN", "MEMBER"] as const) {
       expect(() => assertTeamsAccess({ procedure, isAuthenticated: true, role })).not.toThrow();
     }
@@ -58,6 +58,7 @@ describe("router permission checks", () => {
     "updateEventType",
     "deleteEventType",
     "ssoManage",
+    "workflowManage",
   ] as const)("only owners and admins can %s", (procedure) => {
     expect(() => assertTeamsAccess({ procedure, isAuthenticated: true, role: "OWNER" })).not.toThrow();
     expect(() => assertTeamsAccess({ procedure, isAuthenticated: true, role: "ADMIN" })).not.toThrow();

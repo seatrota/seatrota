@@ -880,6 +880,13 @@ export async function bookTeamEvent(input: {
       assignmentReason: selection.assignmentReason,
     },
   });
+  try {
+    const { queueRemindersForBooking } = await import("@seatrota/teams-workflows/service");
+    await queueRemindersForBooking(stored.id);
+  } catch (error) {
+    // A reminder problem must never undo a booking the guest already has.
+    console.error("teams reminders: could not queue reminders", error);
+  }
   return {
     uid: booking.uid,
     hostUserId: selection.organizerUserId,

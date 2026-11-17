@@ -75,7 +75,7 @@ index 0000000..5a3b81d
 +-- AddForeignKey
 +ALTER TABLE "public"."teams_sso_role_map" ADD CONSTRAINT "teams_sso_role_map_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "public"."teams_sso_connection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 diff --git a/packages/prisma/schema.prisma b/packages/prisma/schema.prisma
-index fec97e0..70f17ee 100644
+index 7e495a2..6d759b8 100644
 --- a/packages/prisma/schema.prisma
 +++ b/packages/prisma/schema.prisma
 @@ -2876,14 +2876,16 @@ enum TeamsHostPriority {
@@ -103,7 +103,7 @@ index fec97e0..70f17ee 100644
  
    @@map("teams_team")
  }
-@@ -2957,6 +2959,58 @@ model TeamsHost {
+@@ -2958,6 +2960,58 @@ model TeamsHost {
    @@map("teams_host")
  }
  
