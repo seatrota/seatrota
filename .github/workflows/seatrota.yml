@@ -162,7 +162,7 @@ jobs:
       - name: Playwright teams-core e2e
         run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
 
-      - name: Playwright round-robin e2e
+      - name: Playwright scheduling e2e
         run: yarn playwright test apps/web/playwright/teams-scheduling.e2e.ts --project=@calcom/web --workers=1
 
       - name: Playwright SSO e2e (Keycloak browser login)
