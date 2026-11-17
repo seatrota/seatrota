@@ -40,6 +40,17 @@ try {
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/setup"));
   step(`administrator created; setup finished at ${new URL(page.url()).pathname}`);
 
+  // A new account goes through the core onboarding once before other pages open.
+  await page.goto(`${base}/onboarding/getting-started`);
+  await page.getByTestId("onboarding-continue-btn").click();
+  await page.waitForURL(/\/onboarding\/personal\/settings/);
+  await page.locator('input[name="name"]').fill(admin.fullName);
+  await page.locator('button[type="submit"]').click();
+  await page.waitForURL(/\/onboarding\/personal\/calendar/);
+  await page.getByTestId("onboarding-continue-btn").click();
+  await page.waitForURL(/\/event-types/);
+  step("onboarding finished (Continue, name, Continue) and landed on /event-types");
+
   await page.goto(`${base}/settings/teams`);
   await page.getByTestId("team-name").fill("First Team");
   await page.getByTestId("team-slug").fill(slug);
