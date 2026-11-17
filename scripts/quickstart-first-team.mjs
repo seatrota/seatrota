@@ -49,7 +49,12 @@ try {
   await page.waitForURL(/\/onboarding\/personal\/calendar/);
   await page.getByTestId("onboarding-continue-btn").click();
   await page.waitForURL(/\/event-types/);
-  step("onboarding finished (Continue, name, Continue) and landed on /event-types");
+  // A one-time "Welcome to Cal.diy" dialog then covers the page until it is dismissed.
+  const welcome = page.getByRole("dialog").filter({ hasText: "Welcome to Cal.diy" });
+  await welcome.waitFor();
+  await welcome.getByRole("button", { name: "Continue" }).click();
+  await welcome.waitFor({ state: "hidden" });
+  step("onboarding finished (Continue, name, Continue, welcome dialog Continue) on /event-types");
 
   await page.goto(`${base}/settings/teams`);
   await page.getByTestId("team-name").fill("First Team");
