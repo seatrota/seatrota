@@ -8,6 +8,8 @@
 # steps are driven in a browser by scripts/quickstart-first-team.mjs.
 #
 # Usage: scripts/quickstart-smoke.sh [workdir]
+# QUICKSTART_DOC picks another guide (for example README.md); QUICKSTART_DOWN=1
+# removes the stack and its volume after a pass.
 #
 # Two documented commands cannot run unchanged in CI, so they are wrapped:
 #   - `git clone https://github.com/seatrota/seatrota.git` clones the commit
@@ -21,14 +23,14 @@ ROOT="$(git rev-parse --show-toplevel)"
 SHA="$(git -C "$ROOT" rev-parse HEAD)"
 WORKDIR="${1:-$(mktemp -d)}"
 FENCES="${QUICKSTART_FENCES:-sh}"
-DOC="$ROOT/docs/QUICKSTART.md"
+DOC="$ROOT/${QUICKSTART_DOC:-docs/QUICKSTART.md}"
 BASE_URL="http://localhost:3000"
 
 SCRIPT="$WORKDIR/quickstart-steps.sh"
 {
   echo "set -euo pipefail"
   for fence in $FENCES; do
-    echo "# --- fenced \`$fence\` blocks from docs/QUICKSTART.md"
+    echo "# --- fenced \`$fence\` blocks from ${QUICKSTART_DOC:-docs/QUICKSTART.md}"
     awk -v fence="$fence" '
       $0 == "```" fence { inside = 1; next }
       inside && $0 == "```" { inside = 0; print ""; next }
@@ -36,7 +38,7 @@ SCRIPT="$WORKDIR/quickstart-steps.sh"
     ' "$DOC"
   done
 } >"$SCRIPT"
-echo "quickstart-smoke: commands taken from docs/QUICKSTART.md (fences: $FENCES):"
+echo "quickstart-smoke: commands taken from ${QUICKSTART_DOC:-docs/QUICKSTART.md} (fences: $FENCES):"
 sed 's/^/  | /' "$SCRIPT"
 
 git() {
@@ -95,4 +97,7 @@ echo "quickstart-smoke: cron without key $unauth; with the generated key $keyed"
 NODE_DIR="${QUICKSTART_NODE_DIR:-$ROOT}"
 cp "$ROOT/scripts/quickstart-first-team.mjs" "$NODE_DIR/quickstart-first-team.mjs" 2>/dev/null || true
 node "$NODE_DIR/quickstart-first-team.mjs" "$BASE_URL"
+if [[ "${QUICKSTART_DOWN:-0}" == "1" ]]; then
+  command docker compose -f docker/compose.yml down -v
+fi
 echo "quickstart-smoke: pass"

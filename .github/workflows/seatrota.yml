@@ -329,12 +329,18 @@ jobs:
         run: docker build -f docker/Dockerfile -t ghcr.io/seatrota/seatrota:v0.1.0 .
 
       - name: Run docs/QUICKSTART.md
+        env:
+          QUICKSTART_DOWN: "1"
         run: bash scripts/quickstart-smoke.sh "$RUNNER_TEMP/quickstart"
+
+      - name: Run the README quickstart
+        env:
+          QUICKSTART_DOC: README.md
+        run: bash scripts/quickstart-smoke.sh "$RUNNER_TEMP/readme"
 
       - name: Stack logs
         if: always()
-        working-directory: ${{ runner.temp }}/quickstart/seatrota
-        run: docker compose -f docker/compose.yml logs --tail 150 || true
+        run: docker compose -f "$RUNNER_TEMP/readme/seatrota/docker/compose.yml" logs --tail 150 || docker compose -f "$RUNNER_TEMP/quickstart/seatrota/docker/compose.yml" logs --tail 150 || true
 
       - name: Keep the failure screenshot
         if: failure()
