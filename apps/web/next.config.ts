@@ -252,6 +252,7 @@ const nextConfig = (phase: string): NextConfig => {
       "@seatrota/teams-sso",
       "@seatrota/teams-scheduling",
       "@seatrota/teams-workflows",
+      "@seatrota/teams-insights",
     ],
     modularizeImports: {
       lodash: {

@@ -61,6 +61,7 @@ jobs:
           yarn workspace @seatrota/teams-sso test
           yarn workspace @seatrota/teams-scheduling test
           yarn workspace @seatrota/teams-workflows test
+          yarn workspace @seatrota/teams-insights test
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
@@ -169,6 +170,9 @@ jobs:
 
       - name: Playwright reminder workflows e2e
         run: yarn playwright test apps/web/playwright/teams-workflows.e2e.ts --project=@calcom/web --workers=1
+
+      - name: Playwright insights e2e
+        run: yarn playwright test apps/web/playwright/teams-insights.e2e.ts --project=@calcom/web --workers=1
 
       - name: Playwright SSO e2e (Keycloak browser login)
         run: yarn playwright test apps/web/playwright/teams-sso.e2e.ts --project=@calcom/web --workers=1
