@@ -60,6 +60,7 @@ jobs:
           yarn workspace @seatrota/teams-core test
           yarn workspace @seatrota/teams-sso test
           yarn workspace @seatrota/teams-scheduling test
+          yarn workspace @seatrota/teams-workflows test
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
@@ -124,6 +125,7 @@ jobs:
       KEYCLOAK_URL: http://127.0.0.1:8080
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      CRON_API_KEY: seatrota-ci-cron-key
       NEXT_PUBLIC_IS_E2E: "1"
       PLAYWRIGHT_HEADLESS: "1"
     steps:
@@ -164,6 +166,9 @@ jobs:
 
       - name: Playwright scheduling e2e
         run: yarn playwright test apps/web/playwright/teams-scheduling.e2e.ts --project=@calcom/web --workers=1
+
+      - name: Playwright reminder workflows e2e
+        run: yarn playwright test apps/web/playwright/teams-workflows.e2e.ts --project=@calcom/web --workers=1
 
       - name: Playwright SSO e2e (Keycloak browser login)
         run: yarn playwright test apps/web/playwright/teams-sso.e2e.ts --project=@calcom/web --workers=1

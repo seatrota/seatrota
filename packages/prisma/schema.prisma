@@ -2935,6 +2935,7 @@ model TeamsEventType {
   eventType      EventType?          @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
   hosts          TeamsHost[]
   assignments    TeamsAssignment[]
+  workflows      TeamsWorkflow[]
 
   @@unique([teamId, slug])
   @@index([teamId])
@@ -3030,4 +3031,63 @@ model TeamsAssignment {
   @@index([bookingUid])
   @@index([assignedUserId])
   @@map("teams_assignment")
+}
+
+enum TeamsReminderTiming {
+  BEFORE_START
+  AFTER_END
+}
+
+enum TeamsReminderRecipient {
+  ATTENDEE
+  HOSTS
+}
+
+enum TeamsReminderStatus {
+  PENDING
+  SENDING
+  SENT
+  CANCELLED
+  FAILED
+}
+
+/// An email reminder rule on a team event type: when it fires, who gets it, and the template.
+model TeamsWorkflow {
+  id               Int                    @id @default(autoincrement())
+  teamsEventTypeId Int
+  timing           TeamsReminderTiming
+  offsetMinutes    Int
+  recipient        TeamsReminderRecipient @default(ATTENDEE)
+  subject          String
+  body             String
+  enabled          Boolean                @default(true)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  teamsEventType   TeamsEventType         @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
+  reminders        TeamsReminder[]
+
+  @@index([teamsEventTypeId])
+  @@map("teams_workflow")
+}
+
+/// One queued email for one booking. `bookingId` has no foreign key so upstream Booking stays untouched;
+/// the sender cancels the row when the booking is gone or cancelled.
+model TeamsReminder {
+  id         Int                 @id @default(autoincrement())
+  workflowId Int
+  bookingId  Int
+  bookingUid String
+  sendAt     DateTime
+  status     TeamsReminderStatus @default(PENDING)
+  attempts   Int                 @default(0)
+  sentAt     DateTime?
+  lastError  String?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  workflow   TeamsWorkflow       @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, bookingId])
+  @@index([status, sendAt])
+  @@index([bookingId])
+  @@map("teams_reminder")
 }

@@ -4,6 +4,7 @@
 
 import { trpc } from "@calcom/trpc/react";
 import TeamSsoPanel from "@seatrota/teams-sso/settings/sso-panel";
+import TeamRemindersPanel from "@seatrota/teams-workflows/settings/reminders-panel";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -281,6 +282,7 @@ export default function TeamDetailPage() {
                 eventType={eventType}
               />
             ) : null}
+            {canManage ? <TeamRemindersPanel slug={slug} eventSlug={eventType.slug} /> : null}
           </div>
         ))}
         {canManage ? (
