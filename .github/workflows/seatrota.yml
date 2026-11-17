@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The clean-room check finds the snapshot commit by message.
+          # A depth-1 checkout does not contain it.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
