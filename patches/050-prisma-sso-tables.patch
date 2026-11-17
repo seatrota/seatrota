@@ -75,10 +75,10 @@ index 0000000..5a3b81d
 +-- AddForeignKey
 +ALTER TABLE "public"."teams_sso_role_map" ADD CONSTRAINT "teams_sso_role_map_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "public"."teams_sso_connection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 diff --git a/packages/prisma/schema.prisma b/packages/prisma/schema.prisma
-index 316b721..7bb8fe7 100644
+index fec97e0..70f17ee 100644
 --- a/packages/prisma/schema.prisma
 +++ b/packages/prisma/schema.prisma
-@@ -2863,14 +2863,16 @@ enum TeamsMembershipRole {
+@@ -2876,14 +2876,16 @@ enum TeamsHostPriority {
  }
  
  model TeamsTeam {
@@ -103,11 +103,10 @@ index 316b721..7bb8fe7 100644
  
    @@map("teams_team")
  }
-@@ -2938,3 +2940,55 @@ model TeamsHost {
-   @@index([userId])
+@@ -2957,6 +2959,58 @@ model TeamsHost {
    @@map("teams_host")
  }
-+
+ 
 +/// One OIDC client for a team (`team:<id>`) or the whole instance (`instance`).
 +/// `scopeKey` is the unique key because Postgres unique indexes allow many null team ids.
 +model TeamsSsoConnection {
@@ -159,3 +158,7 @@ index 316b721..7bb8fe7 100644
 +  @@unique([connectionId, groupName])
 +  @@map("teams_sso_role_map")
 +}
++
+ model TeamsAssignment {
+   id               Int            @id @default(autoincrement())
+   teamsEventTypeId Int
