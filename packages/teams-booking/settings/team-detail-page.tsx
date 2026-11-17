@@ -11,6 +11,126 @@ import { cardStyle, inputStyle, pageStyle, rowStyle } from "../ui";
 
 const MANAGER = new Set(["OWNER", "ADMIN"]);
 
+type PriorityName = "HIGH" | "MEDIUM" | "LOW";
+type SchedulingName = "ROUND_ROBIN" | "COLLECTIVE";
+
+type EditableHost = {
+  userId: number;
+  name: string | null;
+  email: string;
+  priority: PriorityName;
+  weight: number;
+  isFixed: boolean;
+};
+
+function EventSchedulingEditor({
+  slug,
+  eventType,
+}: {
+  slug: string;
+  eventType: {
+    slug: string;
+    schedulingType: SchedulingName;
+    hosts: EditableHost[];
+  };
+}) {
+  const utils = trpc.useUtils();
+  const update = trpc.viewer.teams.updateEventType.useMutation({
+    onSuccess: () => utils.viewer.teams.get.invalidate({ slug }),
+  });
+  const [schedulingType, setSchedulingType] = useState(eventType.schedulingType);
+  const [rows, setRows] = useState(eventType.hosts);
+
+  return (
+    <form
+      style={{ display: "grid", gap: 8 }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        update.mutate({
+          slug,
+          eventSlug: eventType.slug,
+          schedulingType,
+          hostUserIds: rows.map((row) => row.userId),
+          hostSettings: rows.map((row) => ({
+            userId: row.userId,
+            priority: row.priority,
+            weight: row.weight,
+            isFixed: row.isFixed,
+          })),
+        });
+      }}>
+      <label style={rowStyle}>
+        Scheduling
+        <select
+          data-testid={`team-event-scheduling-${eventType.slug}`}
+          value={schedulingType}
+          onChange={(event) => setSchedulingType(event.target.value as SchedulingName)}>
+          <option value="ROUND_ROBIN">Round robin</option>
+          <option value="COLLECTIVE">Collective</option>
+        </select>
+      </label>
+      {rows.map((row) => (
+        <div key={row.userId} style={rowStyle}>
+          <span>{row.name || row.email}</span>
+          <select
+            data-testid={`team-event-priority-${eventType.slug}-${row.userId}`}
+            value={row.priority}
+            onChange={(event) =>
+              setRows((current) =>
+                current.map((host) =>
+                  host.userId === row.userId
+                    ? { ...host, priority: event.target.value as PriorityName }
+                    : host
+                )
+              )
+            }>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+          <input
+            data-testid={`team-event-weight-${eventType.slug}-${row.userId}`}
+            style={inputStyle}
+            type="number"
+            min={0}
+            max={1000}
+            value={row.weight}
+            onChange={(event) =>
+              setRows((current) =>
+                current.map((host) =>
+                  host.userId === row.userId ? { ...host, weight: Number(event.target.value) } : host
+                )
+              )
+            }
+          />
+          <label>
+            <input
+              data-testid={`team-event-fixed-${eventType.slug}-${row.userId}`}
+              type="checkbox"
+              checked={row.isFixed}
+              onChange={(event) =>
+                setRows((current) =>
+                  current.map((host) =>
+                    host.userId === row.userId ? { ...host, isFixed: event.target.checked } : host
+                  )
+                )
+              }
+            />
+            Fixed
+          </label>
+        </div>
+      ))}
+      <button
+        data-testid={`team-scheduling-save-${eventType.slug}`}
+        type="submit"
+        disabled={update.isPending}>
+        Save scheduling
+      </button>
+      {update.error ? <p>{update.error.message}</p> : null}
+    </form>
+  );
+}
+
 export default function TeamDetailPage() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug ?? "";
@@ -33,7 +153,15 @@ export default function TeamDetailPage() {
   const [eventSlug, setEventSlug] = useState("");
   const [length, setLength] = useState(30);
   const [hosts, setHosts] = useState<number[]>([]);
+  const [schedulingType, setSchedulingType] = useState<SchedulingName>("ROUND_ROBIN");
+  const [drafts, setDrafts] = useState<
+    Record<number, { priority: PriorityName; weight: number; fixed: boolean }>
+  >({});
   const canManage = team.data ? MANAGER.has(team.data.viewerRole ?? "") : false;
+
+  function draftFor(userId: number) {
+    return drafts[userId] ?? { priority: "MEDIUM" as const, weight: 100, fixed: false };
+  }
 
   useEffect(() => {
     if (team.data) {
@@ -131,15 +259,27 @@ export default function TeamDetailPage() {
       <section style={cardStyle}>
         <h2>Event types</h2>
         {team.data?.eventTypes.map((eventType) => (
-          <div key={eventType.id} style={rowStyle}>
-            <Link data-testid="team-event-link" href={`/team/${slug}/${eventType.slug}`}>
-              {eventType.title}
-            </Link>
-            <span>{eventType.length} min</span>
+          <div key={eventType.id} style={{ display: "grid", gap: 8 }}>
+            <div style={rowStyle}>
+              <Link data-testid="team-event-link" href={`/team/${slug}/${eventType.slug}`}>
+                {eventType.title}
+              </Link>
+              <span>{eventType.length} min</span>
+              <span>{eventType.schedulingType === "COLLECTIVE" ? "Collective" : "Round robin"}</span>
+              {canManage ? (
+                <button type="button" onClick={() => deleteEvent.mutate({ slug, eventSlug: eventType.slug })}>
+                  Delete
+                </button>
+              ) : null}
+            </div>
             {canManage ? (
-              <button type="button" onClick={() => deleteEvent.mutate({ slug, eventSlug: eventType.slug })}>
-                Delete
-              </button>
+              <EventSchedulingEditor
+                key={`${eventType.schedulingType}:${eventType.hosts
+                  .map((host) => `${host.userId}:${host.priority}:${host.weight}:${host.isFixed}`)
+                  .join(",")}`}
+                slug={slug}
+                eventType={eventType}
+              />
             ) : null}
           </div>
         ))}
@@ -151,7 +291,18 @@ export default function TeamDetailPage() {
               const hostUserIds = hosts.length
                 ? hosts
                 : (team.data?.members.map((member) => member.userId) ?? []);
-              createEvent.mutate({ slug, title, eventSlug, length, hostUserIds });
+              createEvent.mutate({
+                slug,
+                title,
+                eventSlug,
+                length,
+                hostUserIds,
+                schedulingType,
+                hostSettings: hostUserIds.map((userId) => {
+                  const draft = draftFor(userId);
+                  return { userId, priority: draft.priority, weight: draft.weight, isFixed: draft.fixed };
+                }),
+              });
             }}>
             <label style={rowStyle}>
               Title
@@ -183,24 +334,83 @@ export default function TeamDetailPage() {
                 onChange={(event) => setLength(Number(event.target.value))}
               />
             </label>
+            <label style={rowStyle}>
+              Scheduling
+              <select
+                data-testid="team-scheduling-type"
+                value={schedulingType}
+                onChange={(event) => setSchedulingType(event.target.value as SchedulingName)}>
+                <option value="ROUND_ROBIN">Round robin</option>
+                <option value="COLLECTIVE">Collective</option>
+              </select>
+            </label>
             <div>
-              {team.data?.members.map((member) => (
-                <label key={member.userId} style={rowStyle}>
-                  <input
-                    data-testid={`team-host-${member.userId}`}
-                    type="checkbox"
-                    checked={hosts.includes(member.userId)}
-                    onChange={(event) =>
-                      setHosts((current) =>
-                        event.target.checked
-                          ? [...current, member.userId]
-                          : current.filter((id) => id !== member.userId)
-                      )
-                    }
-                  />
-                  Host {member.name || member.email}
-                </label>
-              ))}
+              {team.data?.members.map((member) => {
+                const draft = draftFor(member.userId);
+                return (
+                  <div key={member.userId} style={rowStyle}>
+                    <label>
+                      <input
+                        data-testid={`team-host-${member.userId}`}
+                        type="checkbox"
+                        checked={hosts.includes(member.userId)}
+                        onChange={(event) =>
+                          setHosts((current) =>
+                            event.target.checked
+                              ? [...current, member.userId]
+                              : current.filter((id) => id !== member.userId)
+                          )
+                        }
+                      />
+                      Host {member.name || member.email}
+                    </label>
+                    <select
+                      data-testid={`team-host-priority-${member.userId}`}
+                      value={draft.priority}
+                      onChange={(event) =>
+                        setDrafts((current) => ({
+                          ...current,
+                          [member.userId]: {
+                            ...draft,
+                            priority: event.target.value as PriorityName,
+                          },
+                        }))
+                      }>
+                      <option value="HIGH">High</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="LOW">Low</option>
+                    </select>
+                    <input
+                      data-testid={`team-host-weight-${member.userId}`}
+                      style={inputStyle}
+                      type="number"
+                      min={0}
+                      max={1000}
+                      value={draft.weight}
+                      onChange={(event) =>
+                        setDrafts((current) => ({
+                          ...current,
+                          [member.userId]: { ...draft, weight: Number(event.target.value) },
+                        }))
+                      }
+                    />
+                    <label>
+                      <input
+                        data-testid={`team-host-fixed-${member.userId}`}
+                        type="checkbox"
+                        checked={draft.fixed}
+                        onChange={(event) =>
+                          setDrafts((current) => ({
+                            ...current,
+                            [member.userId]: { ...draft, fixed: event.target.checked },
+                          }))
+                        }
+                      />
+                      Fixed
+                    </label>
+                  </div>
+                );
+              })}
             </div>
             <button data-testid="team-event-create" type="submit" disabled={createEvent.isPending}>
               Create event type

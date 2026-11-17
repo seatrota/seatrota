@@ -11,6 +11,6 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["index.ts"],
-  "exclude": ["dist", "index.test.ts", "vitest.config.ts"]
+  "include": ["index.ts", "hooks.ts", "scheduler.ts"],
+  "exclude": ["dist", "**/*.test.ts", "vitest.config.ts", "persist.ts"]
 }

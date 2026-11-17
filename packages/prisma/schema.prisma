@@ -515,6 +515,7 @@ model User {
 
   teamsMemberships TeamsMembership[]
   teamsHosts       TeamsHost[]
+  teamsAssignments TeamsAssignment[] @relation("TeamsAssignmentUser")
 
   @@unique([email])
   @@unique([email, username])
@@ -912,6 +913,7 @@ model Booking {
   /// @zod.import(["import { emailSchema } from '../../zod-utils'"]).custom.use(emailSchema)
   rescheduledBy          String?
   assignmentReason       AssignmentReason[]
+  teamsAssignments       TeamsAssignment[]
   internalNote           BookingInternalNote[]
   creationSource         CreationSource?
   tracking               Tracking?
@@ -2862,6 +2864,17 @@ enum TeamsMembershipRole {
   MEMBER
 }
 
+enum TeamsSchedulingType {
+  ROUND_ROBIN
+  COLLECTIVE
+}
+
+enum TeamsHostPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
 model TeamsTeam {
   id             Int                  @id @default(autoincrement())
   name           String
@@ -2908,18 +2921,20 @@ model TeamsInvite {
 }
 
 model TeamsEventType {
-  id          Int         @id @default(autoincrement())
-  teamId      Int
-  slug        String
-  title       String
-  description String?
-  length      Int
-  eventTypeId Int?        @unique
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  team        TeamsTeam   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  eventType   EventType?  @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
-  hosts       TeamsHost[]
+  id             Int                 @id @default(autoincrement())
+  teamId         Int
+  slug           String
+  title          String
+  description    String?
+  length         Int
+  schedulingType TeamsSchedulingType @default(ROUND_ROBIN)
+  eventTypeId    Int?                @unique
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  team           TeamsTeam           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  eventType      EventType?          @relation(fields: [eventTypeId], references: [id], onDelete: SetNull)
+  hosts          TeamsHost[]
+  assignments    TeamsAssignment[]
 
   @@unique([teamId, slug])
   @@index([teamId])
@@ -2927,14 +2942,17 @@ model TeamsEventType {
 }
 
 model TeamsHost {
-  id                  Int            @id @default(autoincrement())
+  id                  Int               @id @default(autoincrement())
   teamsEventTypeId    Int
   userId              Int
-  scheduleEventTypeId Int            @unique
-  position            Int            @default(0)
-  teamsEventType      TeamsEventType @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
-  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scheduleEventType   EventType      @relation("TeamsHostScheduleEvent", fields: [scheduleEventTypeId], references: [id], onDelete: Cascade)
+  scheduleEventTypeId Int               @unique
+  position            Int               @default(0)
+  priority            TeamsHostPriority @default(MEDIUM)
+  weight              Int               @default(100)
+  isFixed             Boolean           @default(false)
+  teamsEventType      TeamsEventType    @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduleEventType   EventType         @relation("TeamsHostScheduleEvent", fields: [scheduleEventTypeId], references: [id], onDelete: Cascade)
 
   @@unique([teamsEventTypeId, userId])
   @@index([userId])
@@ -2991,4 +3009,25 @@ model TeamsSsoRoleMap {
 
   @@unique([connectionId, groupName])
   @@map("teams_sso_role_map")
+}
+
+model TeamsAssignment {
+  id               Int            @id @default(autoincrement())
+  teamsEventTypeId Int
+  bookingId        Int
+  bookingUid       String
+  assignedUserId   Int
+  hostUserIds      Int[]
+  assignmentReason String
+  createdAt        DateTime       @default(now())
+  supersededAt     DateTime?
+  teamsEventType   TeamsEventType @relation(fields: [teamsEventTypeId], references: [id], onDelete: Cascade)
+  booking          Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  assignedUser     User           @relation("TeamsAssignmentUser", fields: [assignedUserId], references: [id], onDelete: Cascade)
+
+  @@index([teamsEventTypeId])
+  @@index([bookingId])
+  @@index([bookingUid])
+  @@index([assignedUserId])
+  @@map("teams_assignment")
 }

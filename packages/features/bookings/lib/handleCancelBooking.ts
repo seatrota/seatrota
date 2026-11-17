@@ -514,6 +514,16 @@ async function handler(input: CancelBookingInput, dependencies?: Dependencies) {
   } catch (error) {
     log.error("Error deleting event", error);
   }
+  try {
+    const { reassignCancelledTeamHost } = await import("@seatrota/teams-scheduling/persist");
+    await reassignCancelledTeamHost({
+      bookingId: bookingToDelete.id,
+      bookingUid: bookingToDelete.uid,
+      cancelledUserId: bookingToDelete.userId,
+    });
+  } catch (error) {
+    log.error("teams host reassignment failed", safeStringify(error));
+  }
   return {
     success: true,
     message: "Booking successfully cancelled.",

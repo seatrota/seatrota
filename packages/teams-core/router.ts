@@ -11,6 +11,13 @@ import { TeamsAccessError, TeamsRequestError, type TeamsRole } from "./permissio
 import * as service from "./service";
 
 const roleSchema = z.enum(["OWNER", "ADMIN", "MEMBER"]);
+const schedulingSchema = z.enum(["ROUND_ROBIN", "COLLECTIVE"]);
+const hostSettingSchema = z.object({
+  userId: z.number().int(),
+  priority: z.enum(["HIGH", "MEDIUM", "LOW"]).optional(),
+  weight: z.number().int().min(0).max(1000).optional(),
+  isFixed: z.boolean().optional(),
+});
 
 function rethrow(error: unknown): never {
   if (error instanceof TeamsAccessError || error instanceof TeamsRequestError) {
@@ -90,6 +97,8 @@ const teamsCoreRouter = router({
         description: z.string().max(2000).nullish(),
         length: z.number().int(),
         hostUserIds: z.array(z.number().int()).min(1),
+        schedulingType: schedulingSchema.optional(),
+        hostSettings: z.array(hostSettingSchema).optional(),
       })
     )
     .mutation(({ ctx, input }) => run(() => service.createTeamEventType({ actorId: ctx.user.id, ...input }))),
@@ -102,6 +111,8 @@ const teamsCoreRouter = router({
         description: z.string().max(2000).nullish(),
         length: z.number().int().optional(),
         hostUserIds: z.array(z.number().int()).min(1).optional(),
+        schedulingType: schedulingSchema.optional(),
+        hostSettings: z.array(hostSettingSchema).optional(),
       })
     )
     .mutation(({ ctx, input }) => run(() => service.updateTeamEventType({ actorId: ctx.user.id, ...input }))),

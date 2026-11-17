@@ -6,7 +6,6 @@ import { trpc } from "@calcom/trpc/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-
 import { cardStyle, inputStyle, pageStyle, rowStyle } from "../ui";
 
 export default function TeamEventPage() {
@@ -67,6 +66,7 @@ export default function TeamEventPage() {
               key={slot.time}
               type="button"
               data-testid="team-slot-time"
+              data-time={slot.time}
               onClick={() => setStart(slot.time)}>
               {new Date(slot.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </button>

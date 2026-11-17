@@ -56,7 +56,10 @@ jobs:
         run: yarn type-check --filter='@seatrota/*'
 
       - name: Unit tests
-        run: yarn workspace @seatrota/teams-core test && yarn workspace @seatrota/teams-sso test
+        run: |
+          yarn workspace @seatrota/teams-core test
+          yarn workspace @seatrota/teams-sso test
+          yarn workspace @seatrota/teams-scheduling test
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
@@ -140,7 +143,12 @@ jobs:
       # See the sso-keycloak job for why this is docker run, not a service.
       - name: Start Keycloak
         run: |
-          docker run -d --name keycloak             -p 8080:8080             -e KC_BOOTSTRAP_ADMIN_USERNAME=admin             -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin             quay.io/keycloak/keycloak:26.0.7             start-dev
+          docker run -d --name keycloak \
+            -p 8080:8080 \
+            -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+            -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+            quay.io/keycloak/keycloak:26.0.7 \
+            start-dev
 
       - name: Build the web app
         run: yarn build
@@ -153,6 +161,9 @@ jobs:
 
       - name: Playwright teams-core e2e
         run: yarn playwright test apps/web/playwright/teams-core.e2e.ts --project=@calcom/web --workers=1
+
+      - name: Playwright scheduling e2e
+        run: yarn playwright test apps/web/playwright/teams-scheduling.e2e.ts --project=@calcom/web --workers=1
 
       - name: Playwright SSO e2e (Keycloak browser login)
         run: yarn playwright test apps/web/playwright/teams-sso.e2e.ts --project=@calcom/web --workers=1

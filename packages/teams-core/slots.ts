@@ -9,6 +9,7 @@ export type HostSlotGroup = {
 export type TeamSlot = {
   time: string;
   userId: number;
+  userIds?: number[];
 };
 
 /**

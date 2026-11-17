@@ -1,0 +1,161 @@
+import { prisma } from "@calcom/prisma";
+import type { Page } from "@playwright/test";
+import { expect } from "@playwright/test";
+import type { Fixtures } from "./lib/fixtures";
+import { test } from "./lib/fixtures";
+
+test.afterEach(async ({ users }) => {
+  await users.deleteAll();
+});
+
+async function setUpTeam(
+  { page, users }: { page: Page; users: Fixtures["users"] },
+  options: { label: string; teamName: string; slugPrefix: string; schedulingType: "ROUND_ROBIN" | "COLLECTIVE" }
+) {
+  const owner = await users.create({ name: `${options.label} Owner` });
+  const first = await users.create({ name: `${options.label} First` });
+  const second = await users.create({ name: `${options.label} Second` });
+  const slug = `${options.slugPrefix}-${owner.id}`;
+
+  await owner.login();
+  await page.goto("/settings/teams");
+  await page.getByTestId("team-name").fill(options.teamName);
+  await page.getByTestId("team-slug").fill(slug);
+  await page.getByTestId("team-create").click();
+  await expect(page.getByTestId("team-open").filter({ hasText: options.teamName })).toBeVisible();
+
+  for (const member of [first, second]) {
+    await page.goto(`/settings/teams/${slug}`);
+    await page.getByTestId("team-invite-email").fill(member.email);
+    await page.getByTestId("team-invite-submit").click();
+    await expect(page.getByText("Invite sent")).toBeVisible();
+    const invite = await prisma.teamsInvite.findFirstOrThrow({
+      where: { email: member.email },
+      orderBy: { id: "desc" },
+    });
+    await owner.logout();
+    await member.login();
+    await page.goto(`/teams/invite/${invite.token}`);
+    await page.getByTestId("team-accept-invite").click();
+    await expect(page.getByTestId("team-joined")).toContainText(`You joined ${options.teamName}`);
+    await member.logout();
+    await owner.login();
+  }
+
+  await page.goto(`/settings/teams/${slug}`);
+  await expect(page.getByTestId("team-member")).toHaveCount(3);
+  await page.getByTestId("team-event-title").fill("Demo");
+  await page.getByTestId("team-event-slug").fill("demo");
+  await page.getByTestId("team-event-length").fill("30");
+  await page.getByTestId("team-scheduling-type").selectOption(options.schedulingType);
+  await page.getByTestId("team-event-create").click();
+  await expect(page.getByTestId("team-event-link").filter({ hasText: "Demo" })).toBeVisible();
+  await owner.logout();
+
+  return { owner, first, second, slug };
+}
+
+test("a 3-member team books 6 round-robin meetings across the hosts", async ({ page, users }) => {
+  test.setTimeout(300_000);
+  const { owner, slug } = await setUpTeam(
+    { page, users },
+    { label: "Round Robin", teamName: "Robin", slugPrefix: "robin", schedulingType: "ROUND_ROBIN" }
+  );
+
+  await page.goto(`/team/${slug}/demo`);
+  await expect(page.getByTestId("team-slot-day").first()).toBeVisible();
+  const dayButtons = page.getByTestId("team-slot-day");
+  const openings: { day: string; time: string }[] = [];
+  const dayCount = await dayButtons.count();
+  for (let index = 0; index < dayCount && openings.length < 6; index += 1) {
+    const day = (await dayButtons.nth(index).innerText()).trim();
+    await dayButtons.nth(index).click();
+    const time = await page.getByTestId("team-slot-time").first().getAttribute("data-time");
+    if (time) {
+      openings.push({ day, time });
+    }
+  }
+  expect(openings).toHaveLength(6);
+
+  for (let index = 0; index < openings.length; index += 1) {
+    const opening = openings[index];
+    if (!opening) {
+      continue;
+    }
+    await page.goto(`/team/${slug}/demo`);
+    await page.getByTestId("team-slot-day").filter({ hasText: opening.day }).click();
+    await page.locator(`[data-time="${opening.time}"]`).click();
+    await page.getByTestId("team-book-name").fill(`Guest ${index + 1}`);
+    await page.getByTestId("team-book-email").fill(`guest-${index}-${owner.id}@example.com`);
+    await page.getByTestId("team-book-submit").click();
+    await page.waitForURL((url) => url.pathname.startsWith("/booking/"));
+    await expect(page.getByTestId("success-page")).toBeVisible();
+  }
+
+  const rows = await prisma.$queryRaw<Array<{ assignedUserId: number; bookings: number }>>`
+    SELECT a."assignedUserId", COUNT(*)::int AS bookings
+    FROM "teams_assignment" a
+    INNER JOIN "teams_event_type" e ON e.id = a."teamsEventTypeId"
+    INNER JOIN "teams_team" t ON t.id = e."teamId"
+    WHERE t.slug = ${slug} AND a."supersededAt" IS NULL
+    GROUP BY a."assignedUserId"
+    ORDER BY a."assignedUserId"
+  `;
+  const printed = rows.map((row) => ({
+    assignedUserId: Number(row.assignedUserId),
+    bookings: Number(row.bookings),
+  }));
+  console.log("RR assignment query", JSON.stringify(printed));
+  expect(printed).toHaveLength(3);
+  for (const row of printed) {
+    expect(row.bookings).toBe(2);
+  }
+});
+
+test("a collective booking adds every host and blocks that time", async ({ page, users }) => {
+  test.setTimeout(300_000);
+  const { owner, first, second, slug } = await setUpTeam(
+    { page, users },
+    { label: "Collective", teamName: "Panel", slugPrefix: "panel", schedulingType: "COLLECTIVE" }
+  );
+
+  await page.goto(`/team/${slug}/demo`);
+  const firstDay = page.getByTestId("team-slot-day").first();
+  await expect(firstDay).toBeVisible();
+  const day = (await firstDay.innerText()).trim();
+  await firstDay.click();
+  const time = await page.getByTestId("team-slot-time").first().getAttribute("data-time");
+  expect(time).toBeTruthy();
+
+  await page.locator(`[data-time="${time}"]`).click();
+  await page.getByTestId("team-book-name").fill("Panel Guest");
+  await page.getByTestId("team-book-email").fill(`panel-guest-${owner.id}@example.com`);
+  await page.getByTestId("team-book-submit").click();
+  await page.waitForURL((url) => url.pathname.startsWith("/booking/"));
+  await expect(page.getByTestId("success-page")).toBeVisible();
+
+  const assignment = await prisma.teamsAssignment.findFirstOrThrow({
+    where: { teamsEventType: { team: { slug } }, supersededAt: null },
+    select: { bookingId: true, assignedUserId: true, hostUserIds: true },
+  });
+  const everyHost = [owner.id, first.id, second.id].sort((a, b) => a - b);
+  expect([...assignment.hostUserIds].sort((a, b) => a - b)).toEqual(everyHost);
+
+  const booking = await prisma.booking.findUniqueOrThrow({
+    where: { id: assignment.bookingId },
+    select: { userId: true, attendees: { select: { email: true } } },
+  });
+  expect(booking.userId).toBe(assignment.assignedUserId);
+  const attendeeEmails = booking.attendees.map((attendee) => attendee.email);
+  for (const host of [owner, first, second]) {
+    if (host.id === assignment.assignedUserId) {
+      continue;
+    }
+    expect(attendeeEmails).toContain(host.email);
+  }
+
+  // The organizer is now busy at that time, so a collective slot needing every host must disappear.
+  await page.goto(`/team/${slug}/demo`);
+  await page.getByTestId("team-slot-day").filter({ hasText: day }).click();
+  await expect(page.locator(`[data-time="${time}"]`)).toHaveCount(0);
+});
