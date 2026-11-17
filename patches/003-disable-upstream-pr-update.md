@@ -19,4 +19,6 @@ The jobs after Prepare are the upstream suite. They install the whole tree and c
 
 The patch keeps Prepare from running unless `github.repository` is `calcom/cal.diy`. Downstream jobs already require Prepare outputs, so they stay skipped here. Giving Prepare `contents: read` would only move the failure into that upstream matrix, so the workflow is gated instead.
 
+`pull_request_target` loads this file from the default branch, not from the pull request. The gate takes effect once it is on `main`. Until then, Prepare on a pull request still runs the ungated workflow and fails the same checkout. Disabling the workflow through the Actions API is not available to this token (HTTP 403).
+
 `003-disable-upstream-pr-update.patch` is the diff. `scripts/upstream-sync.sh` re-applies it after `002-`.

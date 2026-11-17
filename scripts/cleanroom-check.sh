@@ -393,8 +393,10 @@ if ! command -v rg >/dev/null 2>&1; then
   note_failure "ripgrep (rg) is required for the whole-tree scan"
 else
   TREE_LIST="$(mktemp)"
+  # --no-config ignores a runner ripgreprc. .git is skipped by ripgrep itself.
+  # Some ripgrep 15 builds return no hits for this tree; fall back to grep -R.
   set +e
-  rg --hidden --no-ignore -g '!.git' -l \
+  rg --no-config --hidden --no-ignore -g '!.git' -l \
     -e '/ee/' \
     -e 'Commercial License' \
     -e '@calcom/ee' \
@@ -409,6 +411,24 @@ else
   set -e
   if [[ "$rg_status" -gt 1 ]]; then
     note_failure "whole-tree rg failed (status ${rg_status})"
+  fi
+  if [[ ! -s "$TREE_LIST" ]]; then
+    echo "cleanroom-check: rg returned no hits (status ${rg_status}); scanning with grep -R" >&2
+    rg --version >&2 || true
+    set +e
+    grep -R -I -l --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.yarn \
+      --exclude-dir=dist --exclude-dir=.next --exclude-dir=build --exclude-dir=out \
+      --exclude-dir=coverage --exclude-dir=.turbo \
+      -e '/ee/' -e 'Commercial License' -e '@calcom/ee' -e 'features/ee' \
+      -e 'packages/ee' -e 'LicenseRef-' -e 'licenseKey' -e 'checkLicense' \
+      "$ROOT" >"$TREE_LIST"
+    grep -R -I -l -i --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.yarn \
+      --exclude-dir=dist --exclude-dir=.next --exclude-dir=build --exclude-dir=out \
+      --exclude-dir=coverage --exclude-dir=.turbo \
+      -e 'commercial licen' "$ROOT" >>"$TREE_LIST"
+    set -e
+    sed -e "s|^${ROOT}/||" -e 's|^\./||' "$TREE_LIST" | sed '/^$/d' | sort -u >"${TREE_LIST}.rel"
+    mv "${TREE_LIST}.rel" "$TREE_LIST"
   fi
   tree_hits=0
   tree_unexpected=0

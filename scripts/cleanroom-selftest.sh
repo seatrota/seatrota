@@ -13,14 +13,15 @@ ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
 DIFF_PLANT="$ROOT/packages/teams-core/cleanroom-planted-import.ts"
-TREE_PLANT="$ROOT/.history/cleanroom-outside-diff.txt"
+# gitignored, not hidden, and not on the whole-tree exception list.
+TREE_PLANT="$ROOT/lint-results/cleanroom-outside-diff.txt"
 
 cleanup() {
   rm -f "$DIFF_PLANT" "$TREE_PLANT"
 }
 trap cleanup EXIT
 
-mkdir -p "$ROOT/packages/teams-core" "$ROOT/.history"
+mkdir -p "$ROOT/packages/teams-core" "$ROOT/lint-results"
 
 cat >"$DIFF_PLANT" <<'EOF'
 // SPDX-License-Identifier: AGPL-3.0-only
@@ -66,7 +67,7 @@ if [[ "$tree_status" -eq 0 ]]; then
   printf '%s\n' "$tree_out" >&2
   exit 1
 fi
-if ! grep -F "whole-tree hit .history/cleanroom-outside-diff.txt" <<<"$tree_out" >/dev/null; then
+if ! grep -F "whole-tree hit lint-results/cleanroom-outside-diff.txt" <<<"$tree_out" >/dev/null; then
   echo "cleanroom-selftest: whole-tree plant was not reported by the whole-tree scan" >&2
   printf '%s\n' "$tree_out" >&2
   exit 1
