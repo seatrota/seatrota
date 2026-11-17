@@ -25,6 +25,7 @@ export const ENDPOINTS = [
   "payments",
   "public",
   "timezones",
+  "teams",
   "slots",
   "travelSchedules",
   "users",

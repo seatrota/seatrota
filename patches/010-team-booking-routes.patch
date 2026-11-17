@@ -1,0 +1,22 @@
+diff --git a/apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/page.tsx b/apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/page.tsx
+new file mode 100644
+index 0000000..2948735
+--- /dev/null
++++ b/apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/page.tsx
+@@ -0,0 +1,5 @@
++import TeamEventPage from "@seatrota/teams-booking/booking/team-event-page";
++
++export default function Page() {
++  return <TeamEventPage />;
++}
+diff --git a/apps/web/app/(booking-page-wrapper)/team/[slug]/page.tsx b/apps/web/app/(booking-page-wrapper)/team/[slug]/page.tsx
+new file mode 100644
+index 0000000..df76aaf
+--- /dev/null
++++ b/apps/web/app/(booking-page-wrapper)/team/[slug]/page.tsx
+@@ -0,0 +1,5 @@
++import TeamPublicPage from "@seatrota/teams-booking/booking/team-page";
++
++export default function Page() {
++  return <TeamPublicPage />;
++}

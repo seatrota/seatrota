@@ -1,0 +1,37 @@
+diff --git a/apps/web/pages/api/trpc/teams/[trpc].ts b/apps/web/pages/api/trpc/teams/[trpc].ts
+new file mode 100644
+index 0000000..66128bc
+--- /dev/null
++++ b/apps/web/pages/api/trpc/teams/[trpc].ts
+@@ -0,0 +1,4 @@
++import { createNextApiHandler } from "@calcom/trpc/server/createNextApiHandler";
++import { teamsRouter } from "@seatrota/teams-core/router";
++
++export default createNextApiHandler(teamsRouter);
+diff --git a/packages/trpc/react/shared.ts b/packages/trpc/react/shared.ts
+index bb51b04..4295fb8 100644
+--- a/packages/trpc/react/shared.ts
++++ b/packages/trpc/react/shared.ts
+@@ -25,6 +25,7 @@ export const ENDPOINTS = [
+   "payments",
+   "public",
+   "timezones",
++  "teams",
+   "slots",
+   "travelSchedules",
+   "users",
+diff --git a/packages/trpc/server/routers/viewer/_router.tsx b/packages/trpc/server/routers/viewer/_router.tsx
+index d28acda..f2f943d 100644
+--- a/packages/trpc/server/routers/viewer/_router.tsx
++++ b/packages/trpc/server/routers/viewer/_router.tsx
+@@ -1,3 +1,4 @@
++import { teamsRouter } from "@seatrota/teams-core/router";
+ import { router } from "../../trpc";
+ import { featureFlagRouter } from "../features/_router";
+ import { loggedInViewerRouter } from "../loggedInViewer/_router";
+@@ -55,4 +56,5 @@ export const viewerRouter = router({
+   ooo: oooRouter,
+   holidays: holidaysRouter,
+   travelSchedules: travelSchedulesRouter,
++  teams: teamsRouter,
+ });

@@ -34,3 +34,17 @@ export function grantSeat(roster: Roster, holder: SeatHolder): Roster {
 export function seatCount(roster: Roster): number {
   return roster.holders.length;
 }
+
+export {
+  assertMembershipChange,
+  assertTeamsAccess,
+  isManagerRole,
+  MANAGER_ROLES,
+  PROCEDURE_ACCESS,
+  TEAMS_ROLES,
+  TeamsAccessError,
+  TeamsRequestError,
+} from "./permissions";
+export type { TeamsProcedure, TeamsRole } from "./permissions";
+export { hostForSlot, unionHostSlots } from "./slots";
+export type { HostSlotGroup, TeamSlot } from "./slots";

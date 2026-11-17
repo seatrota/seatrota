@@ -1,3 +1,4 @@
+import { teamsRouter } from "@seatrota/teams-core/router";
 import { router } from "../../trpc";
 import { featureFlagRouter } from "../features/_router";
 import { loggedInViewerRouter } from "../loggedInViewer/_router";
@@ -55,4 +56,5 @@ export const viewerRouter = router({
   ooo: oooRouter,
   holidays: holidaysRouter,
   travelSchedules: travelSchedulesRouter,
+  teams: teamsRouter,
 });
