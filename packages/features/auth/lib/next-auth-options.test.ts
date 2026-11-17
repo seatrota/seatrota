@@ -196,6 +196,10 @@ vi.mock("next-auth/providers/credentials", () => ({ default: vi.fn(() => ({ id: 
 vi.mock("next-auth/providers/email", () => ({ default: vi.fn() }));
 vi.mock("next-auth/providers/google", () => ({ default: vi.fn() }));
 
+vi.mock("@seatrota/teams-sso/password-login", () => ({
+  assertTeamsPasswordLoginAllowed: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("CredentialsProvider authorize", () => {
   let authorizeCredentials: typeof import("./next-auth-options").authorizeCredentials;
   let verifyPassword: any;

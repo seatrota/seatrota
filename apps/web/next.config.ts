@@ -249,6 +249,7 @@ const nextConfig = (phase: string): NextConfig => {
       "@coss/ui",
       "@seatrota/teams-core",
       "@seatrota/teams-booking",
+      "@seatrota/teams-sso",
     ],
     modularizeImports: {
       lodash: {

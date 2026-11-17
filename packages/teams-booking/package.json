@@ -11,7 +11,8 @@
     "./settings/team-detail-page": "./settings/team-detail-page.tsx",
     "./settings/accept-invite-page": "./settings/accept-invite-page.tsx",
     "./booking/team-page": "./booking/team-page.tsx",
-    "./booking/team-event-page": "./booking/team-event-page.tsx"
+    "./booking/team-event-page": "./booking/team-event-page.tsx",
+    "./ui": "./ui.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -1,0 +1,26 @@
+diff --git a/apps/web/pages/api/auth/[...nextauth].ts b/apps/web/pages/api/auth/[...nextauth].ts
+index c0ff6cd..609637f 100644
+--- a/apps/web/pages/api/auth/[...nextauth].ts
++++ b/apps/web/pages/api/auth/[...nextauth].ts
+@@ -3,10 +3,12 @@ import NextAuth from "next-auth";
+ 
+ import { getOptions } from "@calcom/features/auth/lib/next-auth-options";
+ import { getTrackingFromCookies } from "@calcom/lib/tracking";
++import { refreshTeamsOidcProviders } from "@seatrota/teams-sso/provider-registry";
+ 
+ // pass req to NextAuth: https://github.com/nextauthjs/next-auth/discussions/469
+-const handler = (req: NextApiRequest, res: NextApiResponse) =>
+-  NextAuth(
++const handler = async (req: NextApiRequest, res: NextApiResponse) => {
++  await refreshTeamsOidcProviders();
++  return NextAuth(
+     req,
+     res,
+     getOptions({
+@@ -14,5 +16,6 @@ const handler = (req: NextApiRequest, res: NextApiResponse) =>
+       getTrackingData: () => getTrackingFromCookies(req.cookies, req.query),
+     })
+   );
++};
+ 
+ export default handler;

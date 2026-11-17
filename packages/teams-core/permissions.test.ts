@@ -2,7 +2,6 @@
 // Copyright (c) 2026 SeatRota contributors
 
 import { describe, expect, test } from "vitest";
-
 import {
   assertMembershipChange,
   assertTeamsAccess,
@@ -27,9 +26,7 @@ describe("router permission checks", () => {
 
   test("public procedures do not require a session", () => {
     for (const procedure of procedures.filter((name) => PROCEDURE_ACCESS[name] === "public")) {
-      expect(() =>
-        assertTeamsAccess({ procedure, isAuthenticated: false, role: null })
-      ).not.toThrow();
+      expect(() => assertTeamsAccess({ procedure, isAuthenticated: false, role: null })).not.toThrow();
     }
   });
 
@@ -46,7 +43,7 @@ describe("router permission checks", () => {
     expect(() => assertTeamsAccess({ procedure: "list", isAuthenticated: true, role: null })).not.toThrow();
   });
 
-  test.each(["get", "listEventTypes"] as const)("members can read %s", (procedure) => {
+  test.each(["get", "listEventTypes", "ssoRead"] as const)("members can read %s", (procedure) => {
     for (const role of ["OWNER", "ADMIN", "MEMBER"] as const) {
       expect(() => assertTeamsAccess({ procedure, isAuthenticated: true, role })).not.toThrow();
     }
@@ -60,6 +57,7 @@ describe("router permission checks", () => {
     "createEventType",
     "updateEventType",
     "deleteEventType",
+    "ssoManage",
   ] as const)("only owners and admins can %s", (procedure) => {
     expect(() => assertTeamsAccess({ procedure, isAuthenticated: true, role: "OWNER" })).not.toThrow();
     expect(() => assertTeamsAccess({ procedure, isAuthenticated: true, role: "ADMIN" })).not.toThrow();

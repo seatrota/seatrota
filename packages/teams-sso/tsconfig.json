@@ -11,6 +11,14 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["index.ts"],
-  "exclude": ["dist", "index.test.ts", "vitest.config.ts"]
+  "include": [
+    "index.ts",
+    "plan.ts",
+    "roles.ts",
+    "domain.ts",
+    "enforce.ts",
+    "provider-id.ts",
+    "oidc-provider.ts"
+  ],
+  "exclude": ["dist", "**/*.test.ts", "**/*.e2e.ts", "vitest.config.ts", "vitest.e2e.config.ts"]
 }
