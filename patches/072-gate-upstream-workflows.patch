@@ -1,0 +1,309 @@
+diff --git a/.github/workflows/cleanup-report.yml b/.github/workflows/cleanup-report.yml
+index e3e7daf..b786609 100644
+--- a/.github/workflows/cleanup-report.yml
++++ b/.github/workflows/cleanup-report.yml
+@@ -9,6 +9,7 @@ permissions:
+   pull-requests: write
+ jobs:
+   cleanup-report:
++    if: github.repository == 'calcom/cal.diy'
+     runs-on: ubuntu-latest
+     steps:
+       - name: Generate GitHub App token
+diff --git a/.github/workflows/cleanup.yml b/.github/workflows/cleanup.yml
+index 6e7fd61..e84a53d 100644
+--- a/.github/workflows/cleanup.yml
++++ b/.github/workflows/cleanup.yml
+@@ -16,6 +16,7 @@ concurrency:
+ 
+ jobs:
+   delete_reports:
++    if: github.repository == 'calcom/cal.diy'
+     name: Delete Reports
+     runs-on: ubuntu-latest
+     env:
+diff --git a/.github/workflows/cron-bookingReminder.yml b/.github/workflows/cron-bookingReminder.yml
+index ff6384b..e7f99e8 100644
+--- a/.github/workflows/cron-bookingReminder.yml
++++ b/.github/workflows/cron-bookingReminder.yml
+@@ -8,6 +8,7 @@ on:
+     - cron: "*/15 * * * *"
+ jobs:
+   cron-bookingReminder:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-changeTimeZone.yml b/.github/workflows/cron-changeTimeZone.yml
+index 5a988dc..f7a8c06 100644
+--- a/.github/workflows/cron-changeTimeZone.yml
++++ b/.github/workflows/cron-changeTimeZone.yml
+@@ -9,6 +9,7 @@ on:
+ 
+ jobs:
+   cron-scheduleEmailReminders:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-checkSmsPrices.yml b/.github/workflows/cron-checkSmsPrices.yml
+index 3275314..4395689 100644
+--- a/.github/workflows/cron-checkSmsPrices.yml
++++ b/.github/workflows/cron-checkSmsPrices.yml
+@@ -8,6 +8,7 @@ on:
+     - cron: "* * * * *"
+ jobs:
+   cron-checkSmsPrices:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-downgradeUsers.yml b/.github/workflows/cron-downgradeUsers.yml
+index d5c2984..c42092e 100644
+--- a/.github/workflows/cron-downgradeUsers.yml
++++ b/.github/workflows/cron-downgradeUsers.yml
+@@ -9,6 +9,7 @@ on:
+     - cron: "0 0 1 * *"
+ jobs:
+   cron-downgradeUsers:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-monthlyDigestEmail.yml b/.github/workflows/cron-monthlyDigestEmail.yml
+index d8ff071..9680365 100644
+--- a/.github/workflows/cron-monthlyDigestEmail.yml
++++ b/.github/workflows/cron-monthlyDigestEmail.yml
+@@ -8,6 +8,7 @@ on:
+     - cron: "59 23 28-31 * *"
+ jobs:
+   cron-monthlyDigestEmail:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-scheduleEmailReminders.yml b/.github/workflows/cron-scheduleEmailReminders.yml
+index aecb914..0fbe149 100644
+--- a/.github/workflows/cron-scheduleEmailReminders.yml
++++ b/.github/workflows/cron-scheduleEmailReminders.yml
+@@ -10,6 +10,7 @@ on:
+     - cron: "*/15 * * * *"
+ jobs:
+   cron-scheduleEmailReminders:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-scheduleSMSReminders.yml b/.github/workflows/cron-scheduleSMSReminders.yml
+index c2fd9c5..9a30168 100644
+--- a/.github/workflows/cron-scheduleSMSReminders.yml
++++ b/.github/workflows/cron-scheduleSMSReminders.yml
+@@ -8,6 +8,7 @@ on:
+     - cron: "*/15 * * * *"
+ jobs:
+   cron-scheduleSMSReminders:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL_US: ${{ vars.APP_URL_US }}
+       APP_URL_EU: ${{ vars.APP_URL_EU }}
+diff --git a/.github/workflows/cron-scheduleWhatsappReminders.yml b/.github/workflows/cron-scheduleWhatsappReminders.yml
+index 194b50e..ffd5c6d 100644
+--- a/.github/workflows/cron-scheduleWhatsappReminders.yml
++++ b/.github/workflows/cron-scheduleWhatsappReminders.yml
+@@ -8,6 +8,7 @@ on:
+     - cron: "*/15 * * * *"
+ jobs:
+   cron-scheduleWhatsappReminders:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL_EU: ${{ vars.APP_URL_EU }}
+       APP_URL_US: ${{ vars.APP_URL_US }}
+diff --git a/.github/workflows/cron-stale-issue.yml b/.github/workflows/cron-stale-issue.yml
+index 031aa86..a37aa7e 100644
+--- a/.github/workflows/cron-stale-issue.yml
++++ b/.github/workflows/cron-stale-issue.yml
+@@ -13,6 +13,7 @@ on:
+   workflow_dispatch:
+ jobs:
+   stale:
++    if: github.repository == 'calcom/cal.diy'
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/stale@v7
+diff --git a/.github/workflows/cron-syncAppMeta.yml b/.github/workflows/cron-syncAppMeta.yml
+index 38ea311..435cbde 100644
+--- a/.github/workflows/cron-syncAppMeta.yml
++++ b/.github/workflows/cron-syncAppMeta.yml
+@@ -9,6 +9,7 @@ on:
+     - cron: "0 0 1 * *"
+ jobs:
+   cron-syncAppMeta:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL: ${{ secrets.APP_URL }}
+       CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+diff --git a/.github/workflows/cron-webhooks-triggers.yml b/.github/workflows/cron-webhooks-triggers.yml
+index ea6bc39..76956d1 100644
+--- a/.github/workflows/cron-webhooks-triggers.yml
++++ b/.github/workflows/cron-webhooks-triggers.yml
+@@ -8,6 +8,7 @@ on:
+     - cron: "* * * * *"
+ jobs:
+   cron-webhookTriggers:
++    if: github.repository == 'calcom/cal.diy'
+     env:
+       APP_URL_US: ${{ vars.APP_URL_US }}
+       APP_URL_EU: ${{ vars.APP_URL_EU }}
+diff --git a/.github/workflows/e2e-report.yml b/.github/workflows/e2e-report.yml
+index c992f0c..0613a5d 100644
+--- a/.github/workflows/e2e-report.yml
++++ b/.github/workflows/e2e-report.yml
+@@ -1,10 +1,6 @@
+ name: E2E Report
+ 
+ on:
+-  workflow_run:
+-    workflows: ["PR Update"]
+-    types:
+-      - completed
+   workflow_dispatch:
+     inputs:
+       pr_number:
+@@ -18,7 +14,7 @@ jobs:
+     runs-on: ubuntu-latest
+     # For workflow_run: only run if the triggering workflow failed
+     # For workflow_dispatch: always run (inputs are provided manually)
+-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure' }}
++    if: github.repository == 'calcom/cal.diy' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure')
+     permissions:
+       actions: read
+       pull-requests: read
+@@ -189,7 +185,7 @@ jobs:
+   merge-reports:
+     name: Merge reports
+     needs: [get-pr-info]
+-    if: ${{ needs.get-pr-info.outputs.has-blob-reports == 'true' && needs.get-pr-info.outputs.pr-number != '' }}
++    if: github.repository == 'calcom/cal.diy' && (needs.get-pr-info.outputs.has-blob-reports == 'true' && needs.get-pr-info.outputs.pr-number != '')
+     uses: ./.github/workflows/merge-reports.yml
+     with:
+       source_run_id: ${{ needs.get-pr-info.outputs.source-run-id }}
+@@ -201,7 +197,7 @@ jobs:
+   publish-report:
+     name: Publish HTML report
+     needs: [get-pr-info, merge-reports]
+-    if: ${{ needs.get-pr-info.outputs.pr-number != '' }}
++    if: github.repository == 'calcom/cal.diy' && (needs.get-pr-info.outputs.pr-number != '')
+     uses: ./.github/workflows/publish-report.yml
+     with:
+       head_branch: ${{ needs.get-pr-info.outputs.head-branch }}
+diff --git a/.github/workflows/i18n.yml b/.github/workflows/i18n.yml
+index 1a64caf..cfdd1fb 100644
+--- a/.github/workflows/i18n.yml
++++ b/.github/workflows/i18n.yml
+@@ -10,7 +10,7 @@ concurrency:
+ jobs:
+   i18n:
+     name: Run i18n
+-    if: ${{ secrets.CI_LINGO_DOT_DEV_API_KEY != '' }}
++    if: github.repository == 'calcom/cal.diy'
+     runs-on: ubuntu-latest
+     permissions:
+       actions: write
+diff --git a/.github/workflows/nextjs-bundle-analysis.yml b/.github/workflows/nextjs-bundle-analysis.yml
+index c45fe54..af96fb5 100644
+--- a/.github/workflows/nextjs-bundle-analysis.yml
++++ b/.github/workflows/nextjs-bundle-analysis.yml
+@@ -48,7 +48,7 @@ env:
+ 
+ jobs:
+   analyze:
+-    if: always()
++    if: github.repository == 'calcom/cal.diy' && (always())
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+     steps:
+diff --git a/.github/workflows/performance-tests.yml b/.github/workflows/performance-tests.yml
+index 8e21180..e3648f6 100644
+--- a/.github/workflows/performance-tests.yml
++++ b/.github/workflows/performance-tests.yml
+@@ -12,6 +12,7 @@ on:
+ 
+ jobs:
+   performance-tests:
++    if: github.repository == 'calcom/cal.diy'
+     runs-on: ubuntu-latest
+     env:
+       BASE_URL: ${{ github.event.inputs.base_url || 'https://cal.dev' }}
+diff --git a/.github/workflows/post-release.yml b/.github/workflows/post-release.yml
+index ddcef9f..d444b83 100644
+--- a/.github/workflows/post-release.yml
++++ b/.github/workflows/post-release.yml
+@@ -11,6 +11,7 @@ permissions:
+ 
+ jobs:
+   release:
++    if: github.repository == 'calcom/cal.diy'
+     runs-on: ubuntu-latest
+     steps:
+       - name: Generate GitHub App token
+diff --git a/.github/workflows/re-draft.yml b/.github/workflows/re-draft.yml
+index 631bf23..b188508 100644
+--- a/.github/workflows/re-draft.yml
++++ b/.github/workflows/re-draft.yml
+@@ -14,7 +14,7 @@ permissions:
+ 
+ jobs:
+   download-context:
+-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
++    if: github.repository == 'calcom/cal.diy' && (github.event.workflow_run.conclusion == 'success')
+     runs-on: ubuntu-latest
+     steps:
+       - name: 'Download artifact'
+@@ -57,6 +57,7 @@ jobs:
+       pr_number: ${{fromJSON(steps.return-parsed-json.outputs.result).pr_number}}
+ 
+   re-draft:
++    if: github.repository == 'calcom/cal.diy'
+     needs:
+       - download-context
+     permissions:
+diff --git a/.github/workflows/release-docker.yaml b/.github/workflows/release-docker.yaml
+index debb358..f195276 100644
+--- a/.github/workflows/release-docker.yaml
++++ b/.github/workflows/release-docker.yaml
+@@ -107,7 +107,7 @@ jobs:
+           use-as-latest: "true"
+ 
+       - name: Notify Slack on Success
+-        if: success() && secrets.CI_SLACK_WEBHOOK_URL != ''
++        if: success() && github.repository == 'calcom/cal.diy'
+         uses: slackapi/slack-github-action@v1.24.0
+         with:
+           payload: |
+@@ -118,7 +118,7 @@ jobs:
+           SLACK_WEBHOOK_URL: ${{ secrets.CI_SLACK_WEBHOOK_URL }}
+ 
+       - name: Notify Slack on Failure
+-        if: failure() && secrets.CI_SLACK_WEBHOOK_URL != ''
++        if: failure() && github.repository == 'calcom/cal.diy'
+         uses: slackapi/slack-github-action@v1.24.0
+         with:
+           payload: |
+@@ -155,7 +155,7 @@ jobs:
+           push-image: ${{ (github.event_name == 'push' || inputs.PUSH_IMAGE) && 'true' || 'false' }}
+ 
+       - name: Notify Slack on Success
+-        if: success() && secrets.CI_SLACK_WEBHOOK_URL != ''
++        if: success() && github.repository == 'calcom/cal.diy'
+         uses: slackapi/slack-github-action@v1.24.0
+         with:
+           payload: |
+@@ -166,7 +166,7 @@ jobs:
+           SLACK_WEBHOOK_URL: ${{ secrets.CI_SLACK_WEBHOOK_URL }}
+ 
+       - name: Notify Slack on Failure
+-        if: failure() && secrets.CI_SLACK_WEBHOOK_URL != ''
++        if: failure() && github.repository == 'calcom/cal.diy'
+         uses: slackapi/slack-github-action@v1.24.0
+         with:
+           payload: |

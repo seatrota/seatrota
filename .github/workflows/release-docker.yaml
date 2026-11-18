@@ -107,7 +107,7 @@ jobs:
           use-as-latest: "true"
 
       - name: Notify Slack on Success
-        if: success() && secrets.CI_SLACK_WEBHOOK_URL != ''
+        if: success() && github.repository == 'calcom/cal.diy'
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
@@ -118,7 +118,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.CI_SLACK_WEBHOOK_URL }}
 
       - name: Notify Slack on Failure
-        if: failure() && secrets.CI_SLACK_WEBHOOK_URL != ''
+        if: failure() && github.repository == 'calcom/cal.diy'
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
@@ -155,7 +155,7 @@ jobs:
           push-image: ${{ (github.event_name == 'push' || inputs.PUSH_IMAGE) && 'true' || 'false' }}
 
       - name: Notify Slack on Success
-        if: success() && secrets.CI_SLACK_WEBHOOK_URL != ''
+        if: success() && github.repository == 'calcom/cal.diy'
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
@@ -166,7 +166,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.CI_SLACK_WEBHOOK_URL }}
 
       - name: Notify Slack on Failure
-        if: failure() && secrets.CI_SLACK_WEBHOOK_URL != ''
+        if: failure() && github.repository == 'calcom/cal.diy'
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
