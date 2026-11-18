@@ -14,6 +14,7 @@
 - `060`-`063` are the M6 hosted-readiness seams: the additive Prisma subscription table, the Stripe webhook route, the Next.js transpile entry and the billing e2e. The container image lives in `docker/`, which is SeatRota's own directory.
 - `070-workspace-baseline` records the workspace edits from before M1: the `@seatrota/*` build filter in `package.json`, the teams tasks in `turbo.json`, the teams workspaces in `yarn.lock` and `.github/CODEOWNERS`. Paths SeatRota owns outright, and the two upstream build artifacts it deletes, are listed in `scripts/seatrota-owned.txt` instead.
 - `071-disable-upstream-release-docker` keeps the upstream Docker release workflow from running on SeatRota's `v*` tags; SeatRota's own image is published by `.github/workflows/release.yml`.
+- `072-gate-upstream-workflows` limits Cal.diy's own automation (cron jobs, performance tests, i18n, bundle analysis, cleanup, changesets, release drafting, post-release, E2E report) to `calcom/cal.diy`, and fixes the two workflow files that did not parse.
 
 When a seam exists:
 
